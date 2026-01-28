@@ -1,0 +1,47 @@
+package main
+
+import (
+	"context"
+	"log"
+	"net/http"
+
+	"firebase.google.com/go/v4"
+	"google.golang.org/api/option"
+	"github.com/gin-gonic/gin"
+	"cloud.google.com/go/firestore"
+)
+
+func main() {
+	ctx := context.Background()
+	sa := option.WithCredentialsFile("serviceAccount.json")
+	app, err := firebase.NewApp(ctx, nil, sa)
+	if err != nil {
+		log.Fatalf("error initializing app: %v", err)
+	}
+
+	client, err := app.Firestore(ctx)
+	if err != nil {
+		log.Fatalf("error getting Firestore client: %v", err)
+	}
+	defer client.Close()
+
+	r := gin.Default()
+
+	r.GET("/counter", func(c *gin.Context) {
+		doc, _ := client.Collection("app").Doc("counter").Get(ctx)
+		c.JSON(http.StatusOK, doc.Data())
+	})
+
+	r.POST("/increment", func(c *gin.Context) {
+		_, err := client.Collection("app").Doc("counter").Update(ctx, []firestore.Update{
+			{Path: "value", Value: firestore.Increment(1)},
+		})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "Incremented"})
+	})
+
+	r.Run("0.0.0.0:8080")
+}
