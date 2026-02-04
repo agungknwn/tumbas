@@ -10,6 +10,7 @@ import (
 	"firebase.google.com/go/v4"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/api/option"
+	"github.com/gin-contrib/cors"
 )
 
 type Credential struct {
@@ -97,6 +98,7 @@ func main() {
 
 	// Setup Gin router
 	r := gin.Default()
+	r.Use(cors.Default()) // Quick fix - allows all origins
 
 	// Health check
 	r.GET("/health", func(c *gin.Context) {
