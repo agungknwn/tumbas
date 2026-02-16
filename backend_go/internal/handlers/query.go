@@ -16,7 +16,7 @@ func GetExpensesByDate(c *gin.Context) {
 
 	docs, err := config.Client.Collection("users").Doc(userId).
 		Collection("expenses").Where("date", "==", date).
-		OrderBy("timestamp", firestore.Desc).Documents(config.Ctx).GetAll()
+		OrderBy("timestamp", firestore.Asc).Documents(config.Ctx).GetAll()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

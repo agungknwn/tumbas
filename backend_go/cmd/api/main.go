@@ -22,5 +22,5 @@ func main() {
 	r.Use(cors.Default()) // Quick fix - allows all origins
 
 	routes.RegisterRoutes(r)
-	r.Run("0.0.0.0:8080")
+	r.Run("0.0.0.0:8081")
 }

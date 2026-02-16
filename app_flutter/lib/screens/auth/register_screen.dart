@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:ngirit_app/screens/login_screen.dart';
+import 'login_screen.dart';
 
 const String api = "http://192.168.225.58:8080"; // or IP if phone
 

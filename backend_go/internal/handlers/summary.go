@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"net/http"
-
 	"github.com/agungknwn/ngirit_backend/internal/config"
 	"github.com/agungknwn/ngirit_backend/internal/models"
 	"github.com/gin-gonic/gin"
+	"net/http"
+	"strings"
 )
 
 // ==================== SUMMARY HANDLERS ====================
@@ -30,8 +30,8 @@ func GetDailySummary(c *gin.Context) {
 func GetMonthlySummary(c *gin.Context) {
 	userId := c.Param("userId")
 	monthYear := c.Param("monthYear")
-
 	summaryId := "monthly_" + monthYear
+
 	doc, err := config.Client.Collection("users").Doc(userId).
 		Collection("summaries").Doc(summaryId).Get(config.Ctx)
 	if err != nil {
@@ -39,7 +39,25 @@ func GetMonthlySummary(c *gin.Context) {
 		return
 	}
 
-	var summary models.MonthlySummary
+	summary := models.MonthlySummary{
+		CategoryBreakdown: make(map[string]float64),
+	}
 	doc.DataTo(&summary)
+
+	// Parse flat dot-notation keys into the map
+	rawData := doc.Data()
+	const prefix = "categoryBreakdown."
+	for k, v := range rawData {
+		if strings.HasPrefix(k, prefix) {
+			category := strings.TrimPrefix(k, prefix)
+			switch val := v.(type) {
+			case float64:
+				summary.CategoryBreakdown[category] = val
+			case int64:
+				summary.CategoryBreakdown[category] = float64(val)
+			}
+		}
+	}
+
 	c.JSON(http.StatusOK, summary)
 }

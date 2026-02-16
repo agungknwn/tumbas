@@ -1,3 +1,6 @@
+app_flutter/.fvm/
+app_flutter/.envrc
+
 backend_go/main.go.*
 backend_go/serviceAccount.json
 backend_go/*.sh

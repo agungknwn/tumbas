@@ -1,17 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/expense_provider.dart';
 
 class DatePickerWidget extends StatefulWidget {
-  const DatePickerWidget({super.key});
+  final ValueChanged<DateTime>? onDateSelected;
+
+  const DatePickerWidget({super.key, this.onDateSelected});
 
   @override
   State<DatePickerWidget> createState() => _DatePickerWidgetState();
 }
 
 class _DatePickerWidgetState extends State<DatePickerWidget> {
-  DateTime selectedDate = DateTime.now();
+  late DateTime selectedDate;
+  // DateTime selectedDate = DateTime.now();
   bool isOpen = false;
   OverlayEntry? _overlayEntry;
   final LayerLink _layerLink = LayerLink();
+
+  @override
+  void initState() {
+    super.initState();
+    final expenseProvider = context.read<ExpenseProvider>();
+    selectedDate = expenseProvider.selectedDate;
+  }
 
   String _formatDate(DateTime date) {
     final months = [
@@ -223,6 +235,8 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
             setState(() {
               selectedDate = date;
             });
+
+            widget.onDateSelected?.call(date);
             _closeDropdown();
           },
           child: Container(
@@ -263,6 +277,9 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final expenseProvider = context.watch<ExpenseProvider>();
+    final selectedDate = expenseProvider.selectedDate;
+
     return CompositedTransformTarget(
       link: _layerLink,
       child: Padding(

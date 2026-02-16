@@ -1,35 +1,59 @@
 import 'package:flutter/material.dart';
-import 'package:ngirit_app/widgets/datepicker.dart';
+import 'package:ngirit_app/models/expenses.dart';
+import 'package:provider/provider.dart';
+import 'package:ngirit_app/providers/expense_provider.dart';
+import '../../widgets/common/datepicker.dart';
 
 class ExpensesScreen extends StatefulWidget {
-  final Function(String, String, String)? onAddExpense;
+  // final Function(String, String, String)? onAddExpense;
+  final String userId;
   // const ExpensesScreen({super.key});
-  const ExpensesScreen({Key? key, this.onAddExpense}) : super(key: key);
+  const ExpensesScreen({Key? key, required this.userId}) : super(key: key);
 
   @override
   State<ExpensesScreen> createState() => _ExpensesScreenState();
 }
 
 class _ExpensesScreenState extends State<ExpensesScreen> {
-  List<Map<String, String>> expenses = [
-    {"title": "Fried Rice", "category": "food", "price": "Rp. 15.000"},
-  ];
+  late String selectedDate;
+  String expenseListTitle = "Today Expenses";
+  // String selectedDate = DateTime.now().toString().split(' ')[0];
 
   @override
   void initState() {
     super.initState();
     // This will be called when an expense is added from NavBar
     // No need to define addExpense here anymore
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final expenseProvider = context.read<ExpenseProvider>();
+
+      DateTime currentDate = DateTime.now();
+      expenseProvider.setDate(currentDate);
+
+      selectedDate = currentDate.toString().split(' ')[0];
+      // selectedDate = expenseProvider.selectedDate.toString().split(' ')[0];
+      expenseProvider.fetchExpenses(widget.userId, selectedDate);
+    });
   }
 
-  void addExpense(String title, String amount, String category) {
-    setState(() {
-      expenses.add({
-        "title": title,
-        "category": category,
-        "price": "Rp." + amount,
-      });
-    });
+  void onDateChanged(DateTime newDate) {
+    final formattedDate = newDate.toIso8601String().split('T').first;
+    final expenseProvider = context.read<ExpenseProvider>();
+    expenseProvider.setDate(newDate);
+    expenseProvider.fetchExpenses(widget.userId, formattedDate);
+
+    final now = DateTime.now();
+
+    final isToday =
+        expenseProvider.selectedDate.year == now.year &&
+        expenseProvider.selectedDate.month == now.month &&
+        expenseProvider.selectedDate.day == now.day;
+
+    if (isToday) {
+      expenseListTitle = "Today Expenses";
+    } else {
+      expenseListTitle = "Expenses List";
+    }
   }
 
   @override
@@ -38,19 +62,41 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
       body: Column(
         children: [
           // Blue header section
-          ScreenHeader(onAddItem: addExpense),
+          ScreenHeader(),
           // Date picker aligned left
-          Align(alignment: Alignment.centerLeft, child: DatePickerWidget()),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: DatePickerWidget(onDateSelected: onDateChanged),
+          ),
           // White content section with overlap
           Expanded(
-            child: Stack(
-              children: [
-                // Total expenses card (overlapping)
-                SummaryCard(),
-                ExpenseListHeader(),
-                // Scrollable expense list
-                ExpenseList(expenses: expenses),
-              ],
+            child: Consumer<ExpenseProvider>(
+              builder: (context, expenseProvider, child) {
+                print('🔍 Provider state:');
+                print('   - isLoading: ${expenseProvider.isLoading}');
+                print(
+                  '   - expenses count: ${expenseProvider.expenses.length}',
+                );
+                print('   - expenses: ${expenseProvider.expenses}');
+                if (expenseProvider.isLoading) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                double total = expenseProvider.expenses.fold(
+                  0,
+                  (sum, expense) => sum + expense.amount,
+                );
+
+                return Stack(
+                  children: [
+                    // Total expenses card (overlapping)
+                    SummaryCard(total: total),
+                    ExpenseListHeader(title: expenseListTitle),
+                    // Scrollable expense list
+                    ExpenseList(expenses: expenseProvider.expenses),
+                  ],
+                );
+              },
             ),
           ),
         ],
@@ -61,7 +107,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
 }
 
 class ExpenseList extends StatelessWidget {
-  final List<Map<String, String>> expenses;
+  final List<ExpenseResponse> expenses;
 
   const ExpenseList({super.key, required this.expenses});
 
@@ -76,9 +122,9 @@ class ExpenseList extends StatelessWidget {
         itemBuilder: (_, index) {
           final item = expenses[index];
           return _expenseItem(
-            item["title"]!,
-            item["category"]!,
-            item["price"]!,
+            item.name,
+            item.category,
+            'Rp. ${item.amount.toStringAsFixed(0)}',
           );
         },
       ),
@@ -127,14 +173,15 @@ class ExpenseList extends StatelessWidget {
 }
 
 class ExpenseListHeader extends StatelessWidget {
-  const ExpenseListHeader({super.key});
+  final String title;
+  const ExpenseListHeader({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(top: 160, left: 24),
       child: Text(
-        'Today Expenses',
+        title,
         style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
       ),
     );
@@ -142,7 +189,9 @@ class ExpenseListHeader extends StatelessWidget {
 }
 
 class SummaryCard extends StatelessWidget {
-  const SummaryCard({super.key});
+  final double total;
+
+  const SummaryCard({super.key, required this.total});
 
   @override
   Widget build(BuildContext context) {
@@ -173,7 +222,7 @@ class SummaryCard extends StatelessWidget {
             ),
             SizedBox(height: 8),
             Text(
-              'Rp. 50,000',
+              'Rp. ${total.toStringAsFixed(0)}',
               style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
           ],
@@ -184,9 +233,7 @@ class SummaryCard extends StatelessWidget {
 }
 
 class ScreenHeader extends StatelessWidget {
-  final Function(String title, String amount, String category) onAddItem;
-
-  const ScreenHeader({super.key, required this.onAddItem});
+  const ScreenHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -212,7 +259,7 @@ class ScreenHeader extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
-            AddExpensePopup(onAddItem: onAddItem),
+            // AddExpensePopup(onAddItem: onAddItem),
           ],
         ),
       ),
@@ -241,6 +288,8 @@ class AddExpensePopup extends StatelessWidget {
               "Food",
               "Transport",
               "Entertainment",
+              "Housing",
+              "Gifts",
               "Other",
             ];
             String selectedCategory =

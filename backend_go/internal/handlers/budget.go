@@ -59,10 +59,16 @@ func UpdateBudget(c *gin.Context) {
 		return
 	}
 
-	budget.UpdatedAt = time.Now()
+	//budget.UpdatedAt = time.Now()
+	updateData := map[string]interface{}{
+		"amount":    budget.MonthlyBudget,
+		"currency":  budget.Currency,
+		"monthYear": budget.MonthYear,
+		"updatedAt": time.Now(),
+	}
 
 	_, err := config.Client.Collection("users").Doc(userId).
-		Collection("budgets").Doc(budgetId).Set(config.Ctx, budget, firestore.MergeAll)
+		Collection("budgets").Doc(budgetId).Set(config.Ctx, updateData, firestore.MergeAll)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

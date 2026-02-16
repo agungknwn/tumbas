@@ -48,4 +48,3 @@ type MonthlySummary struct {
 	DailyAverage      float64            `json:"dailyAverage" firestore:"dailyAverage"`
 	UpdatedAt         time.Time          `json:"updatedAt" firestore:"updatedAt"`
 }
-

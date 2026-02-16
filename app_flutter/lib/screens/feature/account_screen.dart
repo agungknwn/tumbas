@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ngirit_app/screens/login_screen.dart';
+import '../auth/login_screen.dart';
 
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
