@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 import '../config/constants.dart';
 import '../models/budget.dart';
 import 'api_service.dart';
@@ -6,18 +8,21 @@ class BudgetService {
   final ApiService _api = ApiService();
 
   // Register get budget service
-  Future<Budget> getBudget({
+  Future<Budget?> getBudget({
     required String userId,
     required String budgetId,
   }) async {
+    debugPrint(">>> getBudget START $budgetId");
     final response = await _api.get(
       ApiConstants.userBudget(userId: userId, budgetId: budgetId),
     );
 
+    debugPrint(">>> getBudget RESPONSE $response");
     if (response != null) {
       return Budget.fromJson(response);
     } else {
-      throw Exception('Get budget failed');
+      return null;
+      // throw Exception('Get budget failed');
     }
   }
 
@@ -30,7 +35,7 @@ class BudgetService {
   }) async {
     final response = await _api.post(
       ApiConstants.createNewBudget(userId: userId),
-      {'amount': amount, 'cucurrency': currency, 'monthYear': monthYear},
+      {'amount': amount, 'currency': currency, 'monthYear': monthYear},
     );
 
     if (response['budgetId'] != null) {

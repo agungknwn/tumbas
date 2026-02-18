@@ -19,7 +19,7 @@ class Summaries {
         (key, value) => MapEntry(key, (value as num).toDouble()),
       ),
       dateString: json['monthYear'] ?? json['date'] as String,
-      totalExpenses: json['totalExpenses'] as double,
+      totalExpenses: (json['totalExpenses'] as num).toDouble(),
       type: json['type'] as String,
     );
   }

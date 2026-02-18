@@ -18,7 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<SummariesProvider>().getMonthlySummaries();
-      context.read<BudgetProvider>().fetchBudget();
+      // context.read<BudgetProvider>().fetchBudget();
     });
   }
 
@@ -32,6 +32,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final double totalBudget = budgetProvider.userBudget?.amount ?? 0.0;
     final double savingAmount = totalBudget - totalMonthlySpending;
 
+    print("Spent Amount: $totalMonthlySpending");
+
     return Padding(
       padding: const EdgeInsets.all(0),
       child: Column(
@@ -40,7 +42,11 @@ class _HomeScreenState extends State<HomeScreen> {
             currentMonthYear: summariesProvider.monthYear,
             currencies: ['IDR', 'USD', 'EUR'],
           ),
-          SavingCard(amountSaved: savingAmount, total: totalBudget),
+          SavingCard(
+            amountSaved: savingAmount,
+            total: totalBudget,
+            isLoading: budgetProvider.isLoading,
+          ),
         ],
       ),
     );

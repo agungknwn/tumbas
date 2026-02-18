@@ -1,6 +1,9 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class ApiConstants {
   // Base URL - change based on environment
-  static const String baseUrl = 'http://localhost:8081';
+  static final String baseUrl =
+      dotenv.env['API_BASE_URL'] ?? 'http://localhost:8081';
   // static const String baseUrl = 'http://10.1.20.157:8081';
 
   // For Android Emulator use:

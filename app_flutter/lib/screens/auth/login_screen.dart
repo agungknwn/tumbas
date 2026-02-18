@@ -25,15 +25,14 @@ class LoginScreen extends StatelessWidget {
             //Auto Nagivate listener
             if (authProvider.userId != null) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
+                context.read<BudgetProvider>().init(authProvider.userId);
+                context.read<SummariesProvider>().initState(
+                  authProvider.userId,
+                );
                 Navigator.pushReplacementNamed(
                   context,
                   AppRoutes.home,
                   arguments: {'userId': authProvider.userId},
-                );
-
-                context.read<BudgetProvider>().initState(authProvider.userId);
-                context.read<SummariesProvider>().initState(
-                  authProvider.userId,
                 );
               });
             }

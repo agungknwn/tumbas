@@ -1,19 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class SavingCard extends StatelessWidget {
   final double amountSaved;
   final double total;
+  final bool isLoading;
 
-  const SavingCard({super.key, required this.amountSaved, required this.total});
+  const SavingCard({
+    super.key,
+    required this.amountSaved,
+    required this.total,
+    required this.isLoading,
+  });
 
   @override
   Widget build(BuildContext context) {
-    if (total == 0) {
+    if (isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
     final amountSpent = total - amountSaved;
-    final percentage = (amountSaved / total * 100).toInt();
-    final progress = (amountSaved / total).clamp(0.0, 1.0);
+    final percentage = total > 0 ? (amountSaved / total * 100).toInt() : 0;
+    final progress = total > 0 ? (amountSaved / total).clamp(0.0, 1.0) : 0.0;
+
+    final currencyFormatter = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp ',
+      decimalDigits: 2,
+    );
 
     Color getProgressColor(double progress) {
       if (progress > 0.5) {
@@ -66,17 +79,17 @@ class SavingCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '\$${amountSaved.toStringAsFixed(2)}',
+                currencyFormatter.format(amountSaved),
                 style: const TextStyle(
                   color: Colors.black,
-                  fontSize: 36,
+                  fontSize: 26,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               // const SizedBox(width: 28),
               // const Spacer(),
               Text(
-                'of \$${total.toStringAsFixed(2)}',
+                'of ${currencyFormatter.format(total)}',
                 style: TextStyle(
                   color: Colors.black.withOpacity(0.7),
                   fontSize: 16,
@@ -116,7 +129,7 @@ class SavingCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Money Used: \$${amountSpent.toStringAsFixed(2)}',
+                'Money Used: ${currencyFormatter.format(amountSpent)}',
                 style: TextStyle(
                   color: Colors.black.withOpacity(0.9),
                   fontSize: 16,

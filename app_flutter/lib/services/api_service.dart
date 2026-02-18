@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:ngirit_app/config/constants.dart';
 import 'storage_service.dart';
@@ -49,7 +50,6 @@ class ApiService {
 
     Map<String, String> headers = {'Content-Type': 'application/json'};
 
-    // Add auth token if required
     if (requiresAuth) {
       final token = await _storage.getToken();
       if (token != null) {
@@ -58,11 +58,17 @@ class ApiService {
     }
 
     try {
-      final response = await http.get(url, headers: headers);
+      debugPrint("🌍 GET $url");
+
+      final response = await http
+          .get(url, headers: headers)
+          .timeout(const Duration(seconds: 10));
 
       return _handleResponse(response);
-    } catch (e) {
-      throw Exception('Network error: $e');
+    } catch (e, st) {
+      debugPrint("❌ GET FAILED $e");
+      debugPrintStack(stackTrace: st);
+      rethrow;
     }
   }
 
@@ -130,41 +136,28 @@ class ApiService {
 
   // Handle API response
   dynamic _handleResponse(http.Response response) {
-    print('📡 Response status: ${response.statusCode}');
-    print('📡 Response body: ${response.body}');
+    debugPrint('📡 Response status: ${response.statusCode}');
+    debugPrint('📡 Response body: ${response.body}');
 
+    // ✅ SUCCESS
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      if (response.body.isEmpty) {
-        return null;
-      }
-
-      // Decode without casting - let it be List or Map
-      final data = json.decode(response.body);
-      print('📡 Decoded type: ${data.runtimeType}');
-
-      return data; // Could be List<dynamic> or Map<String, dynamic>
-    } else {
-      // For error responses, try to parse as Map
-      try {
-        final errorData = json.decode(response.body);
-        if (errorData is Map<String, dynamic>) {
-          throw Exception(errorData['message'] ?? 'Request failed');
-        }
-      } catch (e) {
-        // If parsing fails, throw generic error
-      }
-      throw Exception('Request failed: ${response.statusCode}');
+      if (response.body.isEmpty) return null;
+      return json.decode(response.body);
     }
-  }
 
-  // Map<String, dynamic> _handleResponse(http.Response response) {
-  //   final data = json.decode(response.body) as Map<String, dynamic>;
-  //
-  //   if (response.statusCode >= 200 && response.statusCode < 300) {
-  //     return data;
-  //   } else {
-  //     // Handle error from Go backend
-  //     throw Exception(data['message'] ?? 'Request failed');
-  //   }
-  // }
+    // ✅ EXPECTED: resource not found
+    if (response.statusCode == 404) {
+      return null;
+    }
+
+    // ❌ REAL errors
+    try {
+      final errorData = json.decode(response.body);
+      if (errorData is Map<String, dynamic>) {
+        throw Exception(errorData['message'] ?? 'Request failed');
+      }
+    } catch (_) {}
+
+    throw Exception('Request failed: ${response.statusCode}');
+  }
 }

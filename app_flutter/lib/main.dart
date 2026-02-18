@@ -5,8 +5,11 @@ import 'package:ngirit_app/providers/summaries_provider.dart';
 import 'package:provider/provider.dart';
 import 'config/routes.dart';
 import 'providers/auth_provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 

@@ -18,13 +18,14 @@ class BudgetProvider extends ChangeNotifier {
   Budget? userBudget;
   bool isLoading = false;
 
-  void initState(uid) {
+  void init(uid) {
     userId = uid;
     _initMonthlyBudget();
   }
 
   // Call services
   Future<void> _initMonthlyBudget() async {
+    debugPrint(">>> _initMonthlyBudget START");
     isLoading = true;
     notifyListeners();
 
@@ -35,7 +36,8 @@ class BudgetProvider extends ChangeNotifier {
         budgetId: budgetId,
       );
 
-      if (currentBudget != {}) {
+      debugPrint("Budget status $currentBudget");
+      if (currentBudget != null) {
         userBudget = currentBudget;
         return;
       }
@@ -49,7 +51,7 @@ class BudgetProvider extends ChangeNotifier {
         budgetId: prevBudgetId,
       );
 
-      if (prevBudget != {}) {
+      if (prevBudget != null) {
         await _service.createBudget(
           userId: userId,
           amount: prevBudget.amount,
@@ -74,8 +76,9 @@ class BudgetProvider extends ChangeNotifier {
         monthYear: monthYear,
       );
       userBudget = Budget(monthYear: monthYear, amount: 0, currency: 'USD');
-    } catch (e) {
-      debugPrint(e.toString());
+    } catch (e, st) {
+      debugPrint("_initMonthlyBudget ERROR: $e");
+      debugPrintStack(stackTrace: st);
     } finally {
       isLoading = false;
       notifyListeners();

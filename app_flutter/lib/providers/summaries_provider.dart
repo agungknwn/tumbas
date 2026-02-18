@@ -25,6 +25,7 @@ class SummariesProvider extends ChangeNotifier {
 
   // Call service
   Future<void> getMonthlySummaries() async {
+    // if (monthlySummaries != null) return;
     isLoading = true;
     notifyListeners();
 
@@ -36,9 +37,9 @@ class SummariesProvider extends ChangeNotifier {
       );
     } catch (e) {
       Exception(e.toString());
-      // print("getMonthlySummaries error: $e");
+      print("getMonthlySummaries error: $e");
     } finally {
-      // print("Summaries Provider: $monthlySummaries");
+      print("Summaries Provider: $monthlySummaries");
       isLoading = false;
       notifyListeners();
     }
