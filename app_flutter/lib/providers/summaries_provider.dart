@@ -19,7 +19,7 @@ class SummariesProvider extends ChangeNotifier {
   bool isLoading = false;
 
   // init func
-  void initState(uid) {
+  void init(uid) {
     userId = uid;
   }
 

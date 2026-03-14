@@ -134,6 +134,28 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> delete(
+    String endpoint, {
+    bool reqiresAuth = false,
+  }) async {
+    final url = Uri.parse(ApiConstants.getUrl(endpoint));
+    Map<String, String> headers = {"Content-Type": "application/json"};
+
+    if (reqiresAuth) {
+      final token = await _storage.getToken();
+      if (token != null) {
+        headers['Authorization'] = 'Bearer $token';
+      }
+    }
+
+    try {
+      final response = await http.delete(url, headers: headers);
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
   // Handle API response
   dynamic _handleResponse(http.Response response) {
     debugPrint('📡 Response status: ${response.statusCode}');
@@ -154,7 +176,9 @@ class ApiService {
     try {
       final errorData = json.decode(response.body);
       if (errorData is Map<String, dynamic>) {
-        throw Exception(errorData['message'] ?? 'Request failed');
+        throw Exception(
+          errorData['error'] ?? errorData['message'] ?? 'Request failed',
+        );
       }
     } catch (_) {}
 

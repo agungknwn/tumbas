@@ -89,6 +89,7 @@ class BudgetProvider extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
+    debugPrint("Fetch budget status $userBudget");
     try {
       userBudget = await _service.getBudget(userId: userId, budgetId: budgetId);
     } catch (e) {

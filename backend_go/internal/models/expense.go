@@ -10,12 +10,15 @@ type Expense struct {
 	Timestamp     time.Time `json:"timestamp" firestore:"timestamp"`
 	MonthYear     string    `json:"monthYear" firestore:"monthYear"`
 	Category      string    `json:"category" firestore:"category"`
-	Name          string    `json:"name" firestore:"name"`
-	Amount        float64   `json:"amount" firestore:"amount"`
+	Name          string    `json:"name" firestore:"-"`
+	Amount        float64   `json:"amount" firestore:"-"`
 	PaymentMethod string    `json:"paymentMethod" firestore:"paymentMethod"`
 	Notes         string    `json:"notes" firestore:"notes"`
 	CreatedAt     time.Time `json:"createdAt" firestore:"createdAt"`
 	UpdatedAt     time.Time `json:"updatedAt" firestore:"updatedAt"`
+	// Encrypted fields stored in Firestore
+	EncryptedName   string `json:"-" firestore:"name"`
+	EncryptedAmount string `json:"-" firestore:"amount"`
 }
 
 type Category struct {

@@ -5,6 +5,7 @@ class ApiConstants {
   static final String baseUrl =
       dotenv.env['API_BASE_URL'] ?? 'http://localhost:8081';
   // static const String baseUrl = 'http://10.1.20.157:8081';
+  // static final String baseUrl = 'http://localhost:8081';
 
   // For Android Emulator use:
   // static const String baseUrl = 'http://10.0.2.2:8080';
@@ -16,14 +17,21 @@ class ApiConstants {
   // Get endpoints
   static const String register = '/auth/register';
   static const String login = '/auth/login';
-  static String expenseByDate({required String userId, required String date}) =>
-      '/users/$userId/expenses/by-date/$date';
 
   // Expenses endpoints
+  // Get Endpoints
+  static String expenseByDate({required String userId, required String date}) =>
+      '/users/$userId/expenses/by-date/$date';
+  static String expenseById({required userId, required String expenseId}) =>
+      '/users/$userId/expenses/$expenseId';
   // Post Endpoints
   static String addExpense({required String userId}) =>
       '/users/$userId/expenses';
-
+  // Patch/put Endpoints
+  static String updateExpense({
+    required String userId,
+    required String expenseId,
+  }) => '/users/$userId/expenses/$expenseId';
   // Delete endpoints
   static String deleteExpense({
     required String userId,

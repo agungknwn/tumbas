@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../widgets/common/menu_drawer.dart';
+import '../widgets/common/drawer/menu_drawer.dart';
 import 'package:provider/provider.dart';
 // import 'package:intl/intl.dart';
 import 'package:ngirit_app/screens/feature/home_screen.dart';
-import '../../widgets/common/add_expense_form.dart';
+import '../../widgets/common/popup/expense_form.dart';
 import '../providers/expense_provider.dart';
 import 'feature/expenses_screen.dart';
 // import 'feature/account_screen.dart';
@@ -32,6 +32,11 @@ class _NavigationScreenState extends State<NavigationScreen> {
   @override
   void initState() {
     super.initState();
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   final now = DateTime.now();
+    //   context.read<ExpenseProvider>().setUserId(widget.userId);
+    //   context.read<ExpenseProvider>().setDateAndFetch(widget.userId, now);
+    // });
     _pages = [
       // ExpensesScreen(),
       HomeScreen(),
@@ -50,9 +55,12 @@ class _NavigationScreenState extends State<NavigationScreen> {
           ),
           child: Padding(
             padding: const EdgeInsets.all(20),
-            child: AddExpenseForm(
+            child: ExpenseForm(
               userId: widget.userId,
-              onAddExpense: (title, amount, category) {
+              editMode: false,
+              submitText: "Add Expense",
+              deleteText: "",
+              onAddExpense: () {
                 final expenseProvider = context.read<ExpenseProvider>();
                 // Optional: Refresh expenses after adding
                 Provider.of<ExpenseProvider>(
@@ -67,6 +75,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
                 setState(() {
                   _selectedIndex = 1;
                 });
+                Navigator.pop(context, true);
 
                 // print("Title: $title, Amount: $amount, Category: $category");
               },

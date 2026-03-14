@@ -3,18 +3,40 @@ import 'package:ngirit_app/providers/expense_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
-class AddExpenseForm extends StatefulWidget {
+class ExpenseForm extends StatefulWidget {
   final String userId;
-  final Function(String title, String amount, String category)? onAddExpense;
+  final String? expenseId;
+  final String submitText;
+  final String deleteText;
 
-  const AddExpenseForm({Key? key, required this.userId, this.onAddExpense})
-    : super(key: key);
+  // form mode
+  final bool editMode;
+
+  // for callback
+  final Function? onAddExpense;
+  final Function? onSubmit;
+  final Function? onDelete;
+  final Function? onOpen;
+
+  const ExpenseForm({
+    super.key,
+    required this.userId,
+    required this.submitText,
+    required this.deleteText,
+    required this.editMode,
+    this.expenseId,
+    this.onAddExpense,
+    this.onSubmit,
+    this.onDelete,
+    this.onOpen,
+  });
 
   @override
-  State<AddExpenseForm> createState() => _AddExpenseFormState();
+  State<ExpenseForm> createState() => _ExpenseFormState();
 }
 
-class _AddExpenseFormState extends State<AddExpenseForm> {
+class _ExpenseFormState extends State<ExpenseForm> {
+  bool _isInitialized = false;
   final titleController = TextEditingController();
   final amountController = TextEditingController();
   String selectedCategory = "Food";
@@ -33,6 +55,14 @@ class _AddExpenseFormState extends State<AddExpenseForm> {
     titleController.dispose();
     amountController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.expenseId != null) {
+      widget.onOpen?.call(widget.expenseId!);
+    }
   }
 
   void _handleAddExpense(BuildContext context) async {
@@ -77,21 +107,72 @@ class _AddExpenseFormState extends State<AddExpenseForm> {
 
     // Call optional callback
     if (widget.onAddExpense != null) {
-      widget.onAddExpense!(
-        titleController.text,
-        amountController.text,
-        selectedCategory,
-      );
+      widget.onAddExpense!();
+    }
+  }
+
+  void _handleSubmit(BuildContext context) async {
+    // Validate inputs
+    if (titleController.text.isEmpty || amountController.text.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Please fill in all fields')));
+      return;
     }
 
-    // Close dialog
-    if (mounted) {
+    // Parse amount
+    final int? amount = int.tryParse(amountController.text);
+    if (amount == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Please enter a valid amount')));
+      return;
+    }
+
+    final provider = Provider.of<ExpenseProvider>(context, listen: false);
+    await provider.updateExpense(
+      widget.expenseId!,
+      titleController.text,
+      selectedCategory,
+      amount,
+    );
+
+    // final now = DateTime.now().toIso8601String().split("T")[0];
+    // await provider.fetchExpenses(provider.userId, now);
+
+    // Call optional callback
+    if (widget.onSubmit != null) {
+      widget.onSubmit!();
+    }
+  }
+
+  void _handleDelete(BuildContext context) async {
+    final provider = Provider.of<ExpenseProvider>(context, listen: false);
+    final now = provider.selectedDate.toIso8601String().split(' ')[0];
+
+    await provider.deleteExpense(widget.expenseId!);
+
+    await provider.fetchExpenses(provider.userId, now);
+    if (context.mounted) {
       Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final expenseProvider = context.watch<ExpenseProvider>();
+    if (expenseProvider.isLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+    if (!_isInitialized &&
+        widget.expenseId != null &&
+        expenseProvider.editExpense != null) {
+      final targetExpense = expenseProvider.editExpense!;
+      titleController.text = targetExpense.name;
+      amountController.text = targetExpense.amount.toString();
+      selectedCategory = targetExpense.category;
+      _isInitialized = true;
+    }
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,18 +235,17 @@ class _AddExpenseFormState extends State<AddExpenseForm> {
 
         Row(
           children: [
-            Expanded(
-              child: OutlinedButton(
+            if (widget.editMode)
+              OutlinedButton(
                 style: OutlinedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onPressed: () => Navigator.pop(context),
-                child: Text("Cancel"),
+                onPressed: () => _handleDelete(context),
+                child: Text(widget.deleteText),
               ),
-            ),
             SizedBox(width: 12),
             Expanded(
               child: Consumer<ExpenseProvider>(
@@ -198,8 +278,14 @@ class _AddExpenseFormState extends State<AddExpenseForm> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    onPressed: () => _handleAddExpense(context),
-                    child: Text("Add Expense"),
+                    onPressed: () {
+                      if (widget.onSubmit != null) {
+                        _handleSubmit(context);
+                      } else if (widget.onAddExpense != null) {
+                        _handleAddExpense(context);
+                      }
+                    },
+                    child: Text(widget.submitText),
                   );
                 },
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ngirit_app/providers/budget_provider.dart';
+import 'package:ngirit_app/providers/expense_provider.dart';
 import 'package:ngirit_app/providers/summaries_provider.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
@@ -26,9 +27,8 @@ class LoginScreen extends StatelessWidget {
             if (authProvider.userId != null) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 context.read<BudgetProvider>().init(authProvider.userId);
-                context.read<SummariesProvider>().initState(
-                  authProvider.userId,
-                );
+                context.read<ExpenseProvider>().init(authProvider.userId);
+                context.read<SummariesProvider>().init(authProvider.userId);
                 Navigator.pushReplacementNamed(
                   context,
                   AppRoutes.home,

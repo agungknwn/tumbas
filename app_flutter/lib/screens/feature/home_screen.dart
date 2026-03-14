@@ -2,9 +2,9 @@ import 'package:ngirit_app/providers/budget_provider.dart';
 import 'package:ngirit_app/providers/summaries_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:ngirit_app/widgets/common/home_header.dart';
+import '../../widgets/common/home/home_header.dart';
 // import '../../widgets/common/menu_drawer.dart';
-import '../../widgets/common/saving_card.dart';
+import '../../widgets/common/home/saving_card.dart';
 
 class HomeScreen extends StatefulWidget {
   @override

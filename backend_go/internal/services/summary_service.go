@@ -9,27 +9,6 @@ import (
 	"github.com/agungknwn/ngirit_backend/internal/models"
 )
 
-// func UpdateDailySummaryAfterAdd(userId string, expense models.Expense) {
-// 	summaryId := "daily_" + expense.Date
-// 	summaryRef := config.Client.Collection("users").Doc(userId).
-// 		Collection("summaries").Doc(summaryId)
-//
-// 	config.Client.RunTransaction(config.Ctx, func(ctx context.Context, tx *firestore.Transaction) error {
-// 		categoryPath := "categoryBreakdown." + expense.Category
-//
-// 		tx.Set(summaryRef, map[string]interface{}{
-// 			"type":          "daily",
-// 			"date":          expense.Date,
-// 			"totalExpenses": firestore.Increment(expense.Amount),
-// 			"expenseCount":  firestore.Increment(1),
-// 			categoryPath:    firestore.Increment(expense.Amount),
-// 			"updatedAt":     time.Now(),
-// 		}, firestore.MergeAll)
-//
-// 		return nil
-// 	})
-// }
-
 //// ==================== HELPER FUNCTIONS FOR SUMMARIES ====================
 
 func UpdateDailySummaryAfterAdd(userId string, expense models.Expense) {

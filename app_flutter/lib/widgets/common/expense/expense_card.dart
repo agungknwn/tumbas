@@ -1,0 +1,130 @@
+import 'package:flutter/material.dart';
+import 'package:ngirit_app/providers/expense_provider.dart';
+import 'package:provider/provider.dart';
+import '../popup/expense_form.dart';
+
+class ExpenseCard extends StatelessWidget {
+  final String expenseId;
+  final String title;
+  final String category;
+  final String price;
+  final bool isToday;
+
+  // callback func
+  // final Function? onEditButtonPressed;
+  const ExpenseCard({
+    super.key,
+    required this.expenseId,
+    required this.title,
+    required this.category,
+    required this.price,
+    required this.isToday,
+    // this.onEditButtonPressed,
+  });
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.read<ExpenseProvider>();
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+              SizedBox(height: 4),
+              Text(
+                category,
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Text(
+                price,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+              SizedBox(width: 5),
+              if (isToday)
+                EditButton(
+                  expenseId: expenseId,
+                  onClick: provider.getExpenseById,
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class EditButton extends StatelessWidget {
+  final String expenseId;
+  final Function? onClick;
+  const EditButton({super.key, required this.expenseId, required this.onClick});
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.read<ExpenseProvider>();
+    return Builder(
+      builder: (context) => IconButton(
+        icon: Icon(Icons.edit, size: 20, color: Colors.green),
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: ExpenseForm(
+                    editMode: true,
+                    submitText: "Edit Expense",
+                    deleteText: "Delete",
+                    expenseId: expenseId,
+                    userId: provider.userId,
+                    onOpen: (expenseId) => onClick!(provider.userId, expenseId),
+                    onSubmit: () {
+                      final expenseProvider = context.read<ExpenseProvider>();
+                      final now = DateTime.now();
+                      final nowStr = now.toString().split(' ')[0];
+                      // Provider.of<ExpenseProvider>(
+                      //   context,
+                      //   listen: false,
+                      // ).fetchExpenses(expenseProvider.userId, nowStr);
+                      expenseProvider.fetchExpenses(
+                        expenseProvider.userId,
+                        nowStr,
+                      );
+
+                      expenseProvider.setDate(now);
+                      Navigator.pop(context, true);
+                    },
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}

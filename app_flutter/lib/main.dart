@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'Ngirit App',
-        theme: ThemeData(primarySwatch: Colors.blue),
+        theme: ThemeData(primarySwatch: Colors.red),
         initialRoute: AppRoutes.login,
         onGenerateRoute: AppRoutes.generateRoute,
       ),
