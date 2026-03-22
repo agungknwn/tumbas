@@ -7,8 +7,8 @@ class AuthProvider extends ChangeNotifier {
   final AuthService _apiService = AuthService();
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
-  static const _keyIdentifier = null;
-  static const _keyPassword = null;
+  static const _keyIdentifier = "saved_identifier";
+  static const _keyPassword = "saved_password";
 
   bool _isLoading = false;
   bool registerStatus = false;
@@ -85,8 +85,10 @@ class AuthProvider extends ChangeNotifier {
 
   // Biometric cred helper
   Future<void> _saveCredentials(String identifier, String password) async {
+    debugPrint("save cred start");
     await _secureStorage.write(key: _keyIdentifier, value: identifier);
     await _secureStorage.write(key: _keyPassword, value: password);
+    debugPrint("save cred done");
   }
 
   Future<String?> getSavedIdentity() async {
@@ -102,8 +104,8 @@ class AuthProvider extends ChangeNotifier {
     return identity != null;
   }
 
-  Future<void> _clearCredentials() async {
-    await _secureStorage.delete(key: _keyIdentifier);
-    await _secureStorage.delete(key: _keyPassword);
-  }
+  // Future<void> _clearCredentials() async {
+  //   await _secureStorage.delete(key: _keyIdentifier);
+  //   await _secureStorage.delete(key: _keyPassword);
+  // }
 }
