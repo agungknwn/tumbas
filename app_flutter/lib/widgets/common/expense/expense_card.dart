@@ -102,21 +102,31 @@ class EditButton extends StatelessWidget {
                     expenseId: expenseId,
                     userId: provider.userId,
                     onOpen: (expenseId) => onClick!(provider.userId, expenseId),
-                    onSubmit: () {
+                    onSubmit:
+                        (
+                          String id,
+                          String title,
+                          int amount,
+                          String category,
+                        ) async {
+                          final expenseProvider = context
+                              .read<ExpenseProvider>();
+                          await expenseProvider.updateExpense(
+                            id,
+                            title,
+                            category,
+                            amount,
+                          );
+                          if (context.mounted) {
+                            Navigator.pop(context, true);
+                          }
+                        },
+                    onDelete: (String id) async {
                       final expenseProvider = context.read<ExpenseProvider>();
-                      final now = DateTime.now();
-                      final nowStr = now.toString().split(' ')[0];
-                      // Provider.of<ExpenseProvider>(
-                      //   context,
-                      //   listen: false,
-                      // ).fetchExpenses(expenseProvider.userId, nowStr);
-                      expenseProvider.fetchExpenses(
-                        expenseProvider.userId,
-                        nowStr,
-                      );
-
-                      expenseProvider.setDate(now);
-                      Navigator.pop(context, true);
+                      await expenseProvider.deleteExpense(id);
+                      if (context.mounted) {
+                        Navigator.pop(context, true);
+                      }
                     },
                   ),
                 ),

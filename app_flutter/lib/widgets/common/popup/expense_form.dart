@@ -111,7 +111,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
     }
   }
 
-  void _handleSubmit(BuildContext context) async {
+  void _handleSubmit(BuildContext context) {
     // Validate inputs
     if (titleController.text.isEmpty || amountController.text.isEmpty) {
       ScaffoldMessenger.of(
@@ -129,32 +129,20 @@ class _ExpenseFormState extends State<ExpenseForm> {
       return;
     }
 
-    final provider = Provider.of<ExpenseProvider>(context, listen: false);
-    await provider.updateExpense(
-      widget.expenseId!,
-      titleController.text,
-      selectedCategory,
-      amount,
-    );
-
-    // final now = DateTime.now().toIso8601String().split("T")[0];
-    // await provider.fetchExpenses(provider.userId, now);
-
     // Call optional callback
     if (widget.onSubmit != null) {
-      widget.onSubmit!();
+      widget.onSubmit!(
+        widget.expenseId,
+        titleController.text,
+        amount,
+        selectedCategory,
+      );
     }
   }
 
-  void _handleDelete(BuildContext context) async {
-    final provider = Provider.of<ExpenseProvider>(context, listen: false);
-    final now = provider.selectedDate.toIso8601String().split(' ')[0];
-
-    await provider.deleteExpense(widget.expenseId!);
-
-    await provider.fetchExpenses(provider.userId, now);
-    if (context.mounted) {
-      Navigator.pop(context);
+  void _handleDelete(BuildContext context) {
+    if (widget.onDelete != null) {
+      widget.onDelete!(widget.expenseId);
     }
   }
 

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:ngirit_app/providers/auth_provider.dart';
+import 'package:ngirit_app/screens/auth/login_screen.dart';
 import '../widgets/common/drawer/menu_drawer.dart';
 import 'package:provider/provider.dart';
 // import 'package:intl/intl.dart';
@@ -122,8 +124,19 @@ class _NavigationScreenState extends State<NavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.read<AuthProvider>();
     return Scaffold(
-      drawer: AppDrawer(userId: widget.userId),
+      drawer: AppDrawer(
+        userId: widget.userId,
+        onLogout: () {
+          provider.userLogout();
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => LoginScreen()),
+          );
+          // debugPrint('logout done');
+        },
+      ),
       body: _pages[_selectedIndex],
 
       // Floating Action Button (Center Circle Button)

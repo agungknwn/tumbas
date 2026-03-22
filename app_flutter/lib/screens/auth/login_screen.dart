@@ -2,18 +2,81 @@ import 'package:flutter/material.dart';
 import 'package:ngirit_app/providers/budget_provider.dart';
 import 'package:ngirit_app/providers/expense_provider.dart';
 import 'package:ngirit_app/providers/summaries_provider.dart';
+import '../../services/biometric_service.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../config/routes.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
+  State<LoginScreen> createState() => _LoginScreenState();
+}
 
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController idController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  bool _biometricAvailable = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkBiometric();
+  }
+
+  @override
+  void dispose() {
+    idController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _checkBiometric() async {
+    final provider = context.read<AuthProvider>();
+    final available = await BiometricService.isAvailable();
+    final hasCreds = await provider.hasSavedCredentials();
+    if (mounted) setState(() => _biometricAvailable = available && hasCreds);
+  }
+
+  Future<void> _loginWithBiometric() async {
+    final authenticated = await BiometricService.authenticate();
+    if (!authenticated) return;
+    if (!mounted) return;
+
+    final provider = context.read<AuthProvider>();
+    final savedIdentity = await provider.getSavedIdentity();
+    final savedPassword = await provider.getSavedPassword();
+
+    if (savedIdentity == null || savedPassword == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please login first to enable biometric auth"),
+        ),
+      );
+      return;
+    }
+
+    provider.login(savedIdentity, savedPassword);
+  }
+
+  void _navigateIfLoggedIn(AuthProvider authProvider) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<BudgetProvider>().init(authProvider.userId);
+      context.read<ExpenseProvider>().init(authProvider.userId);
+      context.read<SummariesProvider>().init(authProvider.userId);
+      Navigator.pushReplacementNamed(
+        context,
+        AppRoutes.home,
+        arguments: {'userId': authProvider.userId},
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Login", style: TextStyle(fontSize: 28)),
@@ -25,16 +88,7 @@ class LoginScreen extends StatelessWidget {
           builder: (context, authProvider, child) {
             //Auto Nagivate listener
             if (authProvider.userId != null) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                context.read<BudgetProvider>().init(authProvider.userId);
-                context.read<ExpenseProvider>().init(authProvider.userId);
-                context.read<SummariesProvider>().init(authProvider.userId);
-                Navigator.pushReplacementNamed(
-                  context,
-                  AppRoutes.home,
-                  arguments: {'userId': authProvider.userId},
-                );
-              });
+              _navigateIfLoggedIn(authProvider);
             }
 
             // show error snackbar
@@ -50,8 +104,10 @@ class LoginScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TextField(
-                  controller: emailController,
-                  decoration: const InputDecoration(labelText: "Email"),
+                  controller: idController,
+                  decoration: const InputDecoration(
+                    labelText: "Email/Username",
+                  ),
                   enabled: !authProvider.isLoading,
                 ),
                 TextField(
@@ -80,10 +136,10 @@ class LoginScreen extends StatelessWidget {
                       SizedBox(width: 10),
                       ElevatedButton(
                         onPressed: () {
-                          final email = emailController.text.trim();
+                          final identity = idController.text.trim();
                           final password = passwordController.text.trim();
 
-                          if (email.isEmpty || password.isEmpty) {
+                          if (identity.isEmpty || password.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text("Email and Password Required"),
@@ -92,12 +148,22 @@ class LoginScreen extends StatelessWidget {
                             return;
                           }
 
-                          authProvider.login(email, password);
+                          authProvider.login(identity, password);
                         },
                         child: const Text("Login"),
                       ),
                     ],
                   ),
+
+                if (_biometricAvailable) ...[
+                  const SizedBox(height: 16),
+                  IconButton(
+                    iconSize: 48,
+                    icon: const Icon(Icons.fingerprint),
+                    tooltip: 'Login with biometrics',
+                    onPressed: _loginWithBiometric,
+                  ),
+                ],
               ],
             );
           },

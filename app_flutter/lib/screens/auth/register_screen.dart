@@ -1,8 +1,6 @@
-// import 'dart:ffi';
-import 'dart:convert';
-
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:ngirit_app/providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 import 'login_screen.dart';
 
 const String api = "http://192.168.225.58:8080"; // or IP if phone
@@ -22,7 +20,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController passwordConfirmController =
       TextEditingController();
 
-  Future<void> register() async {
+  Future<void> _onRegister() async {
     final fullname = fullnameController.text.trim();
     final username = usernameController.text.trim();
     final email = emailController.text.trim();
@@ -31,7 +29,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (email.isEmpty ||
         username.isEmpty ||
-        fullname.isEmpty ||
         password.isEmpty ||
         passwordConfirm.isEmpty) {
       ScaffoldMessenger.of(
@@ -47,22 +44,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
+    final provider = context.read<AuthProvider>();
     try {
-      final response = await http.post(
-        Uri.parse("$api/auth/register"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "email": email,
-          "password": password,
-          "username": username,
-          "name": fullname, // or separate name field
-        }),
-      );
+      await provider.register(email, username, fullname, password);
 
-      // debugPrint("REGISTER STATUS: ${response.statusCode}");
-      // debugPrint("REGISTER BODY: ${response.body}");
+      if (!mounted) return;
 
-      if (response.statusCode == 200) {
+      if (provider.registerStatus == true) {
+        provider.registerStatus = false;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => LoginScreen()),
@@ -81,6 +70,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<AuthProvider>();
     return Scaffold(
       appBar: AppBar(title: const Text("Register")),
       body: Padding(
@@ -89,32 +79,54 @@ class _RegisterScreenState extends State<RegisterScreen> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Text("Register Form"),
+
             InputField(
               fieldName: "Full Name: ",
               controller: fullnameController,
+              obscured: false,
             ),
-            InputField(fieldName: "Username: ", controller: usernameController),
-            InputField(fieldName: "Email: ", controller: emailController),
-            InputField(fieldName: "Password: ", controller: passwordController),
+            InputField(
+              fieldName: "Username: ",
+              controller: usernameController,
+              obscured: false,
+            ),
+            InputField(
+              fieldName: "Email: ",
+              controller: emailController,
+              obscured: false,
+            ),
+            InputField(
+              fieldName: "Password: ",
+              controller: passwordController,
+              obscured: true,
+            ),
             InputField(
               fieldName: "Password Confirmation: ",
               controller: passwordConfirmController,
+              obscured: true,
             ),
             SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () => Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => LoginScreen()),
+
+            if (provider.isLoading)
+              const CircularProgressIndicator()
+            else
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => LoginScreen()),
+                    ),
+                    child: Text("Back to Login Page"),
                   ),
-                  child: Text("Back to Login Page"),
-                ),
-                const SizedBox(width: 12),
-                ElevatedButton(onPressed: register, child: Text("Register")),
-              ],
-            ),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    onPressed: _onRegister,
+                    child: Text("Register"),
+                  ),
+                ],
+              ),
           ],
         ),
       ),
@@ -127,10 +139,12 @@ class InputField extends StatelessWidget {
     super.key,
     required this.fieldName,
     required this.controller,
+    required this.obscured,
   });
 
   final String fieldName;
   final TextEditingController controller;
+  final bool obscured;
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +153,9 @@ class InputField extends StatelessWidget {
       children: [
         Text(fieldName),
         SizedBox(width: 12),
-        Expanded(child: TextField(controller: controller)),
+        Expanded(
+          child: TextField(controller: controller, obscureText: obscured),
+        ),
       ],
     );
   }

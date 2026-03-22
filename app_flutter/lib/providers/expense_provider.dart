@@ -51,10 +51,22 @@ class ExpenseProvider extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    _service.deleteExpense(userId: userId, expenseId: expenseId);
-    // done
-    isLoading = false;
-    notifyListeners();
+    try {
+      await _service.deleteExpense(userId: userId, expenseId: expenseId);
+
+      // fetch expense
+      final date = DateTime.now();
+      final formattedDate = date.toIso8601String().split('T').first;
+      await fetchExpenses(
+        userId,
+        formattedDate,
+      ); // notify is loading false handle internally
+      // debugPrint('Fetch Done');
+    } catch (e) {
+      debugPrint(e.toString());
+      isLoading = false;
+      notifyListeners();
+    }
   }
 
   // api call
@@ -68,16 +80,24 @@ class ExpenseProvider extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    _service.updateExpense(
-      userId: userId,
-      expenseId: expenseId,
-      name: name,
-      category: category,
-      amount: amount,
-    );
-    //update done
-    isLoading = false;
-    notifyListeners();
+    try {
+      await _service.updateExpense(
+        userId: userId,
+        expenseId: expenseId,
+        name: name,
+        category: category,
+        amount: amount,
+      );
+
+      final date = DateTime.now();
+      final formattedDate = date.toIso8601String().split('T').first;
+      await fetchExpenses(userId, formattedDate);
+    } catch (e) {
+      debugPrint(e.toString());
+      //update done
+      isLoading = false; // notify when fetchExpenses didnt run
+      notifyListeners();
+    }
   }
 
   Future<void> fetchExpenses(String userId, String date) async {

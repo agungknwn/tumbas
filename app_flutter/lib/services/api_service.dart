@@ -150,7 +150,7 @@ class ApiService {
 
     try {
       final response = await http.delete(url, headers: headers);
-      return jsonDecode(response.body) as Map<String, dynamic>;
+      return _handleResponse(response);
     } catch (e) {
       throw Exception('Network error: $e');
     }

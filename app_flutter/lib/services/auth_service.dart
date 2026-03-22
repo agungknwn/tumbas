@@ -11,11 +11,17 @@ class AuthService {
   Future<User> register({
     required String email,
     required String password,
+    required String username,
     required String name,
   }) async {
     final response = await _api.post(
       ApiConstants.register, // This is '/auth/register'
-      {'email': email, 'password': password, 'name': name},
+      {
+        'email': email,
+        'password': password,
+        'username': username,
+        'name': name,
+      },
     );
 
     // Assuming your Go backend returns:
@@ -25,22 +31,22 @@ class AuthService {
     //   "user": {...}
     // }
 
-    if (response['success'] == true) {
-      return User.fromJson(response['user']);
+    if (response['userId'] != null) {
+      return User.fromJson(response);
     } else {
-      throw Exception(response['message'] ?? 'Registration failed');
+      throw Exception(response['error'] ?? 'Registration failed');
     }
   }
 
   // Login - calls POST /auth/login
   Future<User> login({
-    required String email,
+    required String identifier,
     required String password,
     bool staySignedIn = false,
   }) async {
     final response = await _api.post(
       ApiConstants.login, // This is '/auth/login'
-      {'email': email, 'password': password},
+      {'identifier': identifier, 'password': password},
     );
 
     // Assuming your Go backend returns:
@@ -51,16 +57,16 @@ class AuthService {
     //   "user": {...}
     // }
 
-    if (response['success'] == true) {
+    if (response['userId'] != null) {
       // Save tokens if stay signed in
       if (staySignedIn) {
         await _storage.saveToken(response['access_token']);
         await _storage.saveRefreshToken(response['refresh_token']);
       }
 
-      return User.fromJson(response['user']);
+      return User.fromJson(response);
     } else {
-      throw Exception(response['message'] ?? 'Login failed');
+      throw Exception(response['error'] ?? 'Login failed');
     }
   }
 

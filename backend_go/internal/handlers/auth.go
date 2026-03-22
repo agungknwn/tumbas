@@ -4,8 +4,10 @@ import (
 	"net/http"
 	"time"
 
+	"cloud.google.com/go/firestore"
 	"github.com/agungknwn/ngirit_backend/internal/config"
 	"github.com/agungknwn/ngirit_backend/internal/models"
+	"github.com/agungknwn/ngirit_backend/internal/services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,26 +27,40 @@ func Register(c *gin.Context) {
 	userRef := config.Client.Collection("users").Doc(cred.Username)
 	docSnap, err := userRef.Get(config.Ctx)
 
+	hashedPassword, err := services.HashPassword(cred.Password)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "could not hash password"})
+		return
+	}
+
 	if err == nil && docSnap.Exists() {
 		c.JSON(409, gin.H{"error": "username already registered"})
 		return
 	}
 
 	// Check email uniqueness
-	exists := config.Client.Collection("users").
+	existEmail := config.Client.Collection("users").
 		Where("email", "==", cred.Email).
 		Limit(1).
 		Documents(config.Ctx)
 
-	if _, err := exists.Next(); err == nil {
+	if _, err := existEmail.Next(); err == nil {
 		c.JSON(409, gin.H{"error": "email already registered"})
 		return
 	}
 
+	existUsername := config.Client.Collection("users").Where("email", "==", cred.Email).
+		Limit(1).Documents(config.Ctx)
+
+	if _, err := existUsername.Next(); err == nil {
+		c.JSON(409, gin.H{"error": "username already registered"})
+		return
+	}
+
 	// Create user
-	_, err = userRef.Set(config.Ctx, map[string]interface{}{
+	_, err = userRef.Set(config.Ctx, map[string]interface{ any }{
 		"email":     cred.Email,
-		"password":  cred.Password, // ⚠️ hash in production
+		"password":  hashedPassword, // ⚠️ hash in production
 		"name":      cred.Name,
 		"username":  cred.Username,
 		"createdAt": time.Now(),
@@ -59,16 +75,23 @@ func Register(c *gin.Context) {
 }
 
 func Login(c *gin.Context) {
-	var cred models.User
+	var cred models.LoginRequest
 
 	if err := c.ShouldBindJSON(&cred); err != nil {
 		c.JSON(400, gin.H{"error": "invalid request"})
 		return
 	}
 
+	filter := firestore.OrFilter{
+		Filters: []firestore.EntityFilter{
+			firestore.PropertyFilter{Path: "email", Operator: "==", Value: cred.Identifier},
+			firestore.PropertyFilter{Path: "username", Operator: "==", Value: cred.Identifier},
+		},
+	}
+
 	iter := config.Client.Collection("users").
-		Where("email", "==", cred.Email).
-		Where("password", "==", cred.Password).
+		WhereEntity(filter).
+		// Where("password", "==", cred.Password).
 		Limit(1).
 		Documents(config.Ctx)
 
@@ -78,6 +101,13 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	// Extract hash password
+	storedHash := doc.Data()["password"].(string)
+
+	if !services.CheckPasswordHash(cred.Password, storedHash) {
+		c.JSON(401, gin.H{"error": "invalid password"})
+		return
+	}
+
 	c.JSON(200, gin.H{"userId": doc.Ref.ID})
 }
-

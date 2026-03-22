@@ -189,6 +189,15 @@ func PatchExpense(c *gin.Context) {
 		newExpense.EncryptedAmount = encryptedAmount
 	}
 
+	if category, ok := updates["category"].(string); ok {
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "get category failed"})
+			return
+		}
+
+		newExpense.Category = category
+	}
+
 	// Convert map to firestore updates
 	var firestoreUpdates []firestore.Update
 	for key, value := range updates {

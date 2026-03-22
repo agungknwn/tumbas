@@ -14,7 +14,7 @@ class ExpenseService {
       ApiConstants.deleteExpense(userId: userId, expenseId: expenseId),
     );
 
-    if (response["message"] != null) {
+    if (response["error"] != null) {
       throw Exception(response["error"]);
     }
   }
