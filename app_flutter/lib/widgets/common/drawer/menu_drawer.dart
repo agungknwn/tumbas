@@ -14,6 +14,7 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme appTheme = Theme.of(context).colorScheme;
     return Drawer(
       child: Column(
         children: [
@@ -22,7 +23,7 @@ class AppDrawer extends StatelessWidget {
               padding: EdgeInsets.zero,
               children: [
                 DrawerHeader(
-                  decoration: BoxDecoration(color: Colors.green),
+                  decoration: BoxDecoration(color: appTheme.tertiary),
                   child: Text(
                     userId,
                     style: TextStyle(color: Colors.black87, fontSize: 24),

@@ -10,7 +10,11 @@ class ExpenseListHeader extends StatelessWidget {
       padding: EdgeInsets.only(top: 160, left: 24),
       child: Text(
         title,
-        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        style: TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          // color: Theme.of(context).colorScheme.secondary,
+        ),
       ),
     );
   }

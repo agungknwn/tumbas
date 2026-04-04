@@ -77,10 +77,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final appTheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Login", style: TextStyle(fontSize: 28)),
-        backgroundColor: Colors.blue,
+        automaticallyImplyLeading: false,
+        title: Text(
+          "Login",
+          style: TextStyle(fontSize: 28, color: appTheme.secondary),
+        ),
+        backgroundColor: appTheme.primary,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -125,16 +130,25 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: appTheme.tertiary,
+                        ),
                         onPressed: () {
                           Navigator.pushReplacementNamed(
                             context,
                             AppRoutes.register,
                           );
                         },
-                        child: const Text("Registers"),
+                        child: Text(
+                          "Registers",
+                          style: TextStyle(color: appTheme.primary),
+                        ),
                       ),
                       SizedBox(width: 10),
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: appTheme.tertiary,
+                        ),
                         onPressed: () {
                           final identity = idController.text.trim();
                           final password = passwordController.text.trim();
@@ -150,7 +164,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           authProvider.login(identity, password);
                         },
-                        child: const Text("Login"),
+                        child: Text(
+                          "Login",
+                          style: TextStyle(color: appTheme.primary),
+                        ),
                       ),
                     ],
                   ),

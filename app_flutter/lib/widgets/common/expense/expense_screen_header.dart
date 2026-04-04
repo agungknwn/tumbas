@@ -10,7 +10,10 @@ class ScreenHeader extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 24, vertical: 10),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF4A90E2), Color(0xFF357ABD)],
+          colors: [
+            Theme.of(context).colorScheme.primary,
+            Theme.of(context).colorScheme.primary,
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

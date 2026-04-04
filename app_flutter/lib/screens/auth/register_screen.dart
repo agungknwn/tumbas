@@ -71,6 +71,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AuthProvider>();
+    final appTheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: const Text("Register")),
       body: Padding(
@@ -113,17 +114,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // ElevatedButton(
+                  //   onPressed: () => Navigator.pushReplacement(
+                  //     context,
+                  //     MaterialPageRoute(builder: (_) => LoginScreen()),
+                  //   ),
+                  //   child: Text("Back to Login Page"),
+                  // ),
+                  // const SizedBox(width: 12),
                   ElevatedButton(
-                    onPressed: () => Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => LoginScreen()),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: appTheme.tertiary,
                     ),
-                    child: Text("Back to Login Page"),
-                  ),
-                  const SizedBox(width: 12),
-                  ElevatedButton(
                     onPressed: _onRegister,
-                    child: Text("Register"),
+                    child: Text(
+                      "Register",
+                      style: TextStyle(color: appTheme.primary),
+                    ),
                   ),
                 ],
               ),

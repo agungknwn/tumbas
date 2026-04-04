@@ -11,10 +11,11 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme appTheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 34, 12, 10),
       decoration: BoxDecoration(
-        color: Colors.black87,
+        color: appTheme.primary,
         border: Border.all(color: Colors.black87),
       ),
       child: Row(

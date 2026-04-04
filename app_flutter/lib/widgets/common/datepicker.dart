@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/expense_provider.dart';
 
+// default color -> Color(0xFF4A90E2)
+
 class DatePickerWidget extends StatefulWidget {
   final ValueChanged<DateTime>? onDateSelected;
 
@@ -139,7 +141,10 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         IconButton(
-          icon: Icon(Icons.chevron_left, color: Color(0xFF4A90E2)),
+          icon: Icon(
+            Icons.chevron_left,
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
           onPressed: () {
             setState(() {
               selectedDate = DateTime(
@@ -160,7 +165,10 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
           ),
         ),
         IconButton(
-          icon: Icon(Icons.chevron_right, color: Color(0xFF4A90E2)),
+          icon: Icon(
+            Icons.chevron_right,
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
           onPressed: () {
             setState(() {
               selectedDate = DateTime(
@@ -243,10 +251,16 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: isSelected ? Color(0xFF4A90E2) : Colors.transparent,
+              color: isSelected
+                  ? Theme.of(context).colorScheme.tertiary
+                  : Colors.transparent,
               shape: BoxShape.circle,
               border: isToday && !isSelected
-                  ? Border.all(color: Color(0xFF4A90E2), width: 2)
+                  // ? Border.all(color: Color(0xFF4A90E2), width: 2)
+                  ? Border.all(
+                      color: Theme.of(context).colorScheme.tertiary,
+                      width: 2,
+                    )
                   : null,
             ),
             child: Center(
@@ -277,6 +291,7 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme appTheme = Theme.of(context).colorScheme;
     final expenseProvider = context.watch<ExpenseProvider>();
     final selectedDate = expenseProvider.selectedDate;
 
@@ -292,7 +307,11 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
               border: isOpen
-                  ? Border.all(color: Color(0xFF4A90E2), width: 2)
+                  // ? Border.all(color: Color(0xFF4A90E2), width: 2)
+                  ? Border.all(
+                      color: Theme.of(context).colorScheme.tertiary,
+                      width: 2,
+                    )
                   : null,
               boxShadow: [
                 BoxShadow(
@@ -305,7 +324,11 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.calendar_today, color: Color(0xFF4A90E2), size: 18),
+                Icon(
+                  Icons.calendar_today,
+                  color: Theme.of(context).colorScheme.tertiary,
+                  size: 18,
+                ),
                 SizedBox(width: 8),
                 Text(
                   _formatDate(selectedDate),
@@ -318,7 +341,8 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
                 SizedBox(width: 4),
                 Icon(
                   isOpen ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-                  color: Color(0xFF4A90E2),
+                  // color: Color(0xFF4A90E2),
+                  color: Theme.of(context).colorScheme.tertiary,
                   size: 20,
                 ),
               ],

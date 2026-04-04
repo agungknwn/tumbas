@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ngirit_app/config/theme.dart';
 import 'package:ngirit_app/providers/budget_provider.dart';
 import 'package:ngirit_app/providers/expense_provider.dart';
 import 'package:ngirit_app/providers/summaries_provider.dart';
@@ -28,7 +29,9 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'Ngirit App',
-        theme: ThemeData(primarySwatch: Colors.red),
+        theme: AppTheme.lightTheme(context),
+        // darkTheme: AppTheme.darkTheme(context),
+        // themeMode: ThemeMode.system,
         initialRoute: AppRoutes.login,
         onGenerateRoute: AppRoutes.generateRoute,
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:velocity_x/velocity_x.dart';
 
 class SavingCard extends StatelessWidget {
   final double amountSaved;
@@ -59,18 +60,25 @@ class SavingCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Title
-          Align(
-            alignment: Alignment.center,
-            child: const Text(
-              'Monthly Saving',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 32,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
+          // velocity x example
+          "Monthly Saving".text.xl4
+              .color(context.primaryColor)
+              .center
+              .make()
+              .centered(),
+          // vanilla flutter
+          // Align(
+          //   alignment: Alignment.center,
+          //   child: Text(
+          //     'Monthly Saving',
+          //     textAlign: TextAlign.center,
+          //     style: TextStyle(
+          //       color: Theme.of(context).colorScheme.secondary,
+          //       fontSize: 32,
+          //       fontWeight: FontWeight.w500,
+          //     ),
+          //   ),
+          // ),
           const SizedBox(height: 12),
 
           // Amount spent and total

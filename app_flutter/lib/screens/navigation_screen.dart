@@ -8,6 +8,7 @@ import 'package:ngirit_app/screens/feature/home_screen.dart';
 import '../../widgets/common/popup/expense_form.dart';
 import '../providers/expense_provider.dart';
 import 'feature/expenses_screen.dart';
+import '../widgets/common/bottom_navbar.dart';
 // import 'feature/account_screen.dart';
 // import 'package:ngirit_app/utils/counter_be.dart';
 
@@ -99,32 +100,16 @@ class _NavigationScreenState extends State<NavigationScreen> {
     });
   }
 
-  // Future<bool> _onWillPop() async {
-  //   return await showDialog(
-  //         context: context,
-  //         builder: (context) => AlertDialog(
-  //           title: const Text("Exit Confirmation"),
-  //           content: const Text("Are you sure want to quit?"),
-  //           actions: [
-  //             TextButton(
-  //               onPressed: () => Navigator.pop(context, false),
-  //               child: const Text("Cancel"),
-  //             ),
-  //             ElevatedButton(
-  //               onPressed: () {
-  //                 Navigator.pop(context, true);
-  //               },
-  //               child: const Text("Quit"),
-  //             ),
-  //           ],
-  //         ),
-  //       ) ??
-  //       false;
-  // }
-
   @override
   Widget build(BuildContext context) {
+    final appTheme = Theme.of(context).colorScheme;
     final provider = context.read<AuthProvider>();
+
+    // nav bar item
+    final List<NavItem> navItems = [
+      NavItem(Icons.home, 'Home'),
+      NavItem(Icons.money_rounded, 'Expenses'),
+    ];
     return Scaffold(
       drawer: AppDrawer(
         userId: widget.userId,
@@ -143,81 +128,18 @@ class _NavigationScreenState extends State<NavigationScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: _onCenterButtonPressed,
         elevation: 4,
-        backgroundColor: Colors.blue,
+        backgroundColor: appTheme.tertiary,
+        foregroundColor: appTheme.primary,
+        hoverColor: appTheme.secondary.withValues(alpha: 0.3),
         child: const Icon(Icons.add, size: 32),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
       // Bottom Navigation Bar
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8.0,
-        color: Colors.white,
-        elevation: 8,
-        child: SizedBox(
-          height: 60,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              // Home Button
-              Expanded(
-                child: InkWell(
-                  onTap: () => _onItemTapped(0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.home,
-                        color: _selectedIndex == 0 ? Colors.blue : Colors.grey,
-                        size: 28,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Home',
-                        style: TextStyle(
-                          color: _selectedIndex == 0
-                              ? Colors.blue
-                              : Colors.grey,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Spacer for center button
-              const SizedBox(width: 80),
-
-              // Settings Button
-              Expanded(
-                child: InkWell(
-                  onTap: () => _onItemTapped(1),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.money_rounded,
-                        color: _selectedIndex == 1 ? Colors.blue : Colors.grey,
-                        size: 28,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Expenses',
-                        style: TextStyle(
-                          color: _selectedIndex == 1
-                              ? Colors.blue
-                              : Colors.grey,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+      bottomNavigationBar: BottomNavBar(
+        items: navItems,
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
       ),
     );
     // return bottomNavBarV1();

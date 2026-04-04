@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ngirit_app/config/theme.dart';
 import 'package:ngirit_app/providers/expense_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -148,6 +149,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
 
   @override
   Widget build(BuildContext context) {
+    final appTheme = Theme.of(context).colorScheme;
     final expenseProvider = context.watch<ExpenseProvider>();
     if (expenseProvider.isLoading) {
       return Center(child: CircularProgressIndicator());
@@ -201,18 +203,28 @@ class _ExpenseFormState extends State<ExpenseForm> {
 
         Wrap(
           spacing: 10,
+          runSpacing: 12,
           children: categories.map((cat) {
             final bool active = selectedCategory == cat;
             return ChoiceChip(
-              label: Text(cat),
+              // label: Text(cat),
+              label: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.circle, size: 16),
+                  const SizedBox(width: 5),
+                  Text(cat),
+                ],
+              ),
               selected: active,
               onSelected: (_) {
                 setState(() => selectedCategory = cat);
               },
-              selectedColor: Colors.blue,
+              selectedColor: appTheme.tertiary,
               backgroundColor: Colors.grey.shade200,
+              // labelPadding: EdgeInsetsGeometry.all(5),
               labelStyle: TextStyle(
-                color: active ? Colors.white : Colors.black,
+                color: active ? appTheme.primary : Colors.black,
                 fontWeight: FontWeight.w500,
               ),
             );
