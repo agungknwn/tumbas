@@ -7,7 +7,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"github.com/agungknwn/ngirit_backend/internal/config"
 	"github.com/agungknwn/ngirit_backend/internal/models"
-	"github.com/agungknwn/ngirit_backend/internal/services"
+	"github.com/agungknwn/ngirit_backend/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,7 +27,7 @@ func Register(c *gin.Context) {
 	userRef := config.Client.Collection("users").Doc(cred.Username)
 	docSnap, err := userRef.Get(config.Ctx)
 
-	hashedPassword, err := services.HashPassword(cred.Password)
+	hashedPassword, err := utils.HashPassword(cred.Password)
 	if err != nil {
 		c.JSON(500, gin.H{"error": "could not hash password"})
 		return
@@ -104,7 +104,7 @@ func Login(c *gin.Context) {
 	// Extract hash password
 	storedHash := doc.Data()["password"].(string)
 
-	if !services.CheckPasswordHash(cred.Password, storedHash) {
+	if !utils.CheckPasswordHash(cred.Password, storedHash) {
 		c.JSON(401, gin.H{"error": "invalid password"})
 		return
 	}

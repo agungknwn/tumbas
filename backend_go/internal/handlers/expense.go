@@ -9,6 +9,7 @@ import (
 	"github.com/agungknwn/ngirit_backend/internal/config"
 	"github.com/agungknwn/ngirit_backend/internal/models"
 	"github.com/agungknwn/ngirit_backend/internal/services"
+	"github.com/agungknwn/ngirit_backend/internal/utils"
 	"github.com/gin-gonic/gin"
 	// "github.com/go-playground/locales/am"
 )
@@ -28,7 +29,7 @@ func GetExpense(c *gin.Context) {
 
 	var expense models.Expense
 	doc.DataTo(&expense)
-	if err := services.DecryptExpenseFields(&expense); err != nil {
+	if err := utils.DecryptExpenseFields(&expense); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "decryption failed"})
 		return
 	}
@@ -53,7 +54,7 @@ func ListExpenses(c *gin.Context) {
 	for _, doc := range docs {
 		var expense models.Expense
 		doc.DataTo(&expense)
-		if err := services.DecryptExpenseFields(&expense); err != nil {
+		if err := utils.DecryptExpenseFields(&expense); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "decryption failed"})
 			return
 		}
@@ -78,7 +79,7 @@ func CreateExpense(c *gin.Context) {
 	expense.UpdatedAt = time.Now()
 
 	// Add expense to Firestore
-	if err := services.EncryptExpenseFields(&expense); err != nil {
+	if err := utils.EncryptExpenseFields(&expense); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "encryption failed"})
 		return
 	}
@@ -97,7 +98,7 @@ func CreateExpense(c *gin.Context) {
 	expense.ExpenseID = docRef.ID
 
 	// ✅ 3. DECRYPT BACK so the response and summaries use plain values
-	services.DecryptExpenseFields(&expense)
+	utils.DecryptExpenseFields(&expense)
 
 	// Update daily summary
 	go services.UpdateDailySummaryAfterAdd(userId, expense)
@@ -169,7 +170,7 @@ func PatchExpense(c *gin.Context) {
 	newExpense.UpdatedAt = time.Now()
 
 	if name, ok := updates["name"].(string); ok {
-		encryptedName, err := services.Encrypt(name)
+		encryptedName, err := utils.Encrypt(name)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "encryption failed"})
 			return
@@ -179,7 +180,7 @@ func PatchExpense(c *gin.Context) {
 		newExpense.EncryptedName = encryptedName
 	}
 	if amount, ok := updates["amount"].(float64); ok {
-		encryptedAmount, err := services.EncryptFloat64(amount)
+		encryptedAmount, err := utils.EncryptFloat64(amount)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "encryption failed"})
 			return
@@ -219,7 +220,7 @@ func PatchExpense(c *gin.Context) {
 		return
 	}
 
-	services.DecryptExpenseFields(&oldExpense)
+	utils.DecryptExpenseFields(&oldExpense)
 	go services.UpdateSummariesAfterUpdate(userId, oldExpense, newExpense)
 
 	c.JSON(http.StatusOK, gin.H{"message": "success", "data": newExpense})
@@ -248,7 +249,7 @@ func DeleteExpense(c *gin.Context) {
 		return
 	}
 
-	services.DecryptExpenseFields(&expense)
+	utils.DecryptExpenseFields(&expense)
 	// Update summaries (subtract deleted expense)
 	go services.UpdateSummariesAfterDelete(userId, expense)
 

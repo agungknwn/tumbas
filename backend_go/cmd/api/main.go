@@ -5,7 +5,7 @@ import (
 
 	"github.com/agungknwn/ngirit_backend/internal/config"
 	"github.com/agungknwn/ngirit_backend/internal/routes"
-	"github.com/agungknwn/ngirit_backend/internal/services"
+	"github.com/agungknwn/ngirit_backend/internal/utils"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -31,7 +31,7 @@ func main() {
 	}
 
 	// 2. NOW init encryption
-	if err := services.InitEncryption(); err != nil {
+	if err := utils.InitEncryption(); err != nil {
 		log.Fatalf("Encryption init failed: %v", err)
 	}
 

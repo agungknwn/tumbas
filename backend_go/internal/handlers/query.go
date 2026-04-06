@@ -6,7 +6,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"github.com/agungknwn/ngirit_backend/internal/config"
 	"github.com/agungknwn/ngirit_backend/internal/models"
-	"github.com/agungknwn/ngirit_backend/internal/services"
+	"github.com/agungknwn/ngirit_backend/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,7 +28,7 @@ func GetExpensesByDate(c *gin.Context) {
 		var expense models.Expense
 		doc.DataTo(&expense)
 
-		if err := services.DecryptExpenseFields(&expense); err != nil {
+		if err := utils.DecryptExpenseFields(&expense); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "decryption failed"})
 			return
 		}

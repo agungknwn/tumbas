@@ -8,6 +8,8 @@ import (
 func RegisterRoutes(r *gin.Engine) {
 	// Health check
 	r.GET("/health", handlers.HealthCheck)
+	// Migration route
+	r.POST("/admin/migrate/:userId", handlers.RunMigration)
 
 	// Auth
 	auth := r.Group("/auth")

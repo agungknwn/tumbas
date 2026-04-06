@@ -30,24 +30,3 @@ type Category struct {
 	IsActive   bool      `json:"isActive" firestore:"isActive"`
 	CreatedAt  time.Time `json:"createdAt" firestore:"createdAt"`
 }
-
-type DailySummary struct {
-	Type              string             `json:"type" firestore:"type"`
-	Date              string             `json:"date" firestore:"date"`
-	TotalExpenses     float64            `json:"totalExpenses" firestore:"totalExpenses"`
-	ExpenseCount      int                `json:"expenseCount" firestore:"expenseCount"`
-	CategoryBreakdown map[string]float64 `json:"categoryBreakdown" firestore:"categoryBreakdown"`
-	UpdatedAt         time.Time          `json:"updatedAt" firestore:"updatedAt"`
-}
-
-type MonthlySummary struct {
-	Type              string             `json:"type" firestore:"type"`
-	MonthYear         string             `json:"monthYear" firestore:"monthYear"`
-	TotalExpenses     float64            `json:"totalExpenses" firestore:"totalExpenses"`
-	ExpenseCount      int                `json:"expenseCount" firestore:"expenseCount"`
-	RemainingBudget   float64            `json:"remainingBudget" firestore:"remainingBudget"`
-	SavingsAmount     float64            `json:"savingsAmount" firestore:"savingsAmount"`
-	CategoryBreakdown map[string]float64 `json:"categoryBreakdown" firestore:"categoryBreakdown"`
-	DailyAverage      float64            `json:"dailyAverage" firestore:"dailyAverage"`
-	UpdatedAt         time.Time          `json:"updatedAt" firestore:"updatedAt"`
-}
