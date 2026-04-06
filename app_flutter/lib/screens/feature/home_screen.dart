@@ -1,5 +1,6 @@
 import 'package:ngirit_app/providers/budget_provider.dart';
 import 'package:ngirit_app/providers/summaries_provider.dart';
+import 'package:ngirit_app/widgets/common/charts/example_pie.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/common/home/home_header.dart';
@@ -47,6 +48,8 @@ class _HomeScreenState extends State<HomeScreen> {
             total: totalBudget,
             isLoading: budgetProvider.isLoading,
           ),
+          SizedBox(height: 10),
+          PieChartSample2(),
         ],
       ),
     );
