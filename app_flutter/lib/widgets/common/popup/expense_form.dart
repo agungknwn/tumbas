@@ -201,36 +201,68 @@ class _ExpenseFormState extends State<ExpenseForm> {
         Text("Category", style: TextStyle(fontWeight: FontWeight.w600)),
         SizedBox(height: 8),
 
-        Wrap(
-          spacing: 10,
-          runSpacing: 12,
-          children: categories.map((cat) {
-            final bool active = selectedCategory == cat;
-            return ChoiceChip(
-              // label: Text(cat),
-              label: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.circle, size: 16),
-                  const SizedBox(width: 5),
-                  Text(cat),
-                ],
-              ),
-              selected: active,
-              onSelected: (_) {
-                setState(() => selectedCategory = cat);
-              },
-              selectedColor: appTheme.tertiary,
-              backgroundColor: Colors.grey.shade200,
-              // labelPadding: EdgeInsetsGeometry.all(5),
-              labelStyle: TextStyle(
-                color: active ? appTheme.primary : Colors.black,
-                fontWeight: FontWeight.w500,
-              ),
-            );
-          }).toList(),
+        // scroll view categories
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: categories.map((cat) {
+              final bool active = selectedCategory == cat;
+              return Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: ChoiceChip(
+                  label: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.circle, size: 16),
+                      const SizedBox(width: 5),
+                      Text(cat),
+                    ],
+                  ),
+                  selected: active,
+                  onSelected: (_) {
+                    setState(() => selectedCategory = cat);
+                  },
+                  selectedColor: appTheme.tertiary,
+                  backgroundColor: Colors.grey.shade200,
+                  labelStyle: TextStyle(
+                    color: active ? appTheme.primary : Colors.black,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
         ),
 
+        // Wrap(
+        //   spacing: 10,
+        //   runSpacing: 12,
+        //   children: categories.map((cat) {
+        //     final bool active = selectedCategory == cat;
+        //     return ChoiceChip(
+        //       // label: Text(cat),
+        //       label: Row(
+        //         mainAxisSize: MainAxisSize.min,
+        //         children: [
+        //           Icon(Icons.circle, size: 16),
+        //           const SizedBox(width: 5),
+        //           Text(cat),
+        //         ],
+        //       ),
+        //       selected: active,
+        //       onSelected: (_) {
+        //         setState(() => selectedCategory = cat);
+        //       },
+        //       selectedColor: appTheme.tertiary,
+        //       backgroundColor: Colors.grey.shade200,
+        //       // labelPadding: EdgeInsetsGeometry.all(5),
+        //       labelStyle: TextStyle(
+        //         color: active ? appTheme.primary : Colors.black,
+        //         fontWeight: FontWeight.w500,
+        //       ),
+        //     );
+        //   }).toList(),
+        // ),
         SizedBox(height: 24),
 
         Row(

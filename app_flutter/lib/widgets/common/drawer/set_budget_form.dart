@@ -92,7 +92,7 @@ class _SetBudgetFormState extends State<SetBudgetForm> {
                   Navigator.pop(context);
                 },
               ),
-              SizedBox(width: 20),
+              SizedBox(width: 10),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(120, 50),

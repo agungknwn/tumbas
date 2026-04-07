@@ -48,7 +48,18 @@ class _HomeScreenState extends State<HomeScreen> {
             total: totalBudget,
             isLoading: budgetProvider.isLoading,
           ),
-          SizedBox(height: 10),
+          // SizedBox(height: 5),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: SizedBox(
+              width: double.infinity,
+              child: Text(
+                textAlign: TextAlign.start,
+                "Expense By Category",
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
+              ),
+            ),
+          ),
           PieChartSample2(),
         ],
       ),

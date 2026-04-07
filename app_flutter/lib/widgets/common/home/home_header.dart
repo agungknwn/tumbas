@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class HomeHeader extends StatelessWidget {
   final String currentMonthYear;
@@ -34,10 +35,10 @@ class HomeHeader extends StatelessWidget {
           const SizedBox(width: 16),
           // month year text
           Text(
-            currentMonthYear,
+            formatMonthYear(currentMonthYear),
             style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
               color: Colors.white,
             ),
           ),
@@ -69,4 +70,11 @@ class HomeHeader extends StatelessWidget {
       ),
     );
   }
+}
+
+// helper func
+String formatMonthYear(String input) {
+  DateTime dateTime = DateFormat("yyyy-MM").parse(input);
+
+  return DateFormat("MMMM yyyy").format(dateTime);
 }

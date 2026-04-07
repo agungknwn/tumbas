@@ -19,39 +19,61 @@ class AppDrawer extends StatelessWidget {
       child: Column(
         children: [
           Expanded(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                DrawerHeader(
-                  decoration: BoxDecoration(color: appTheme.tertiary),
-                  child: Text(
-                    userId,
-                    style: TextStyle(color: Colors.black87, fontSize: 24),
+            child: Container(
+              color: appTheme.secondary,
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  DrawerHeader(
+                    decoration: BoxDecoration(
+                      color: appTheme.secondary,
+                      image: DecorationImage(
+                        image: AssetImage("assets/app_icon.png"),
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Spacer(), // push text to bottom
+                        Text(
+                          userId,
+                          style: TextStyle(color: Colors.black87, fontSize: 24),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                ListTile(
-                  leading: Icon(Icons.settings),
-                  title: Text('Set Budget'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    showDialog(
-                      context: context,
-                      builder: (context) => SetBudgetForm(),
-                    );
-                  },
-                ),
-              ],
+                  ListTile(
+                    leading: Icon(Icons.monetization_on),
+                    title: Text('Set Budget'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      showDialog(
+                        context: context,
+                        builder: (context) => SetBudgetForm(),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
 
           // Bottom sect: Logout button
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.logout, color: Colors.redAccent),
-            title: const Text('Logout'),
-            onTap: _onLogoutPressed,
+          Container(
+            color: appTheme.secondary,
+            child: Column(
+              children: [
+                const Divider(),
+                ListTile(
+                  leading: const Icon(Icons.logout, color: Colors.redAccent),
+                  title: const Text('Logout'),
+                  onTap: _onLogoutPressed,
+                ),
+                SizedBox(height: MediaQuery.of(context).padding.bottom),
+              ],
+            ),
           ),
-          SizedBox(height: MediaQuery.of(context).padding.bottom),
         ],
       ),
     );
