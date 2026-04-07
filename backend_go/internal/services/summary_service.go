@@ -41,35 +41,56 @@ func UpdateDailySummaryAfterAdd(userId string, expense models.Expense) {
 
 	config.Client.RunTransaction(config.Ctx, func(ctx context.Context, tx *firestore.Transaction) error {
 		var currentTotal float64
+		categoryBreakdown := make(map[string]float64) // decrypted map
 
 		// Read existing summary
 		doc, err := tx.Get(summaryRef)
 		if err == nil {
 			var summary models.DailySummary
-			if err := doc.DataTo(&summary); err == nil && summary.EncryptedTotalExpense != "" {
-				// Decrypt existing total
-				currentTotal, _ = utils.DecryptFloat64(summary.EncryptedTotalExpense)
+			if err := doc.DataTo(&summary); err == nil {
+				// Decrypt total
+				if summary.EncryptedTotalExpense != "" {
+					currentTotal, _ = utils.DecryptFloat64(summary.EncryptedTotalExpense)
+				}
+				// Decrypt each category
+				for category, encryptedVal := range summary.EncryptedCategoryBreakdown {
+					decrypted, err := utils.DecryptFloat64(encryptedVal)
+					if err == nil {
+						categoryBreakdown[category] = decrypted
+					}
+				}
 			}
 		}
 
-		// Add new amount
+		// Update values
 		newTotal := currentTotal + expense.Amount
+		categoryBreakdown[expense.Category] += expense.Amount
 
-		// Encrypt new total
+		// Encrypt total
 		encryptedTotal, err := utils.EncryptFloat64(newTotal)
 		if err != nil {
 			return fmt.Errorf("failed to encrypt total: %w", err)
 		}
 
-		categoryPath := "categoryBreakdown." + expense.Category
+		// Encrypt each category
+		encryptedCategoryBreakdown := make(map[string]interface{})
+		for category, amount := range categoryBreakdown {
+			encryptedVal, err := utils.EncryptFloat64(amount)
+			if err != nil {
+				return fmt.Errorf("failed to encrypt category %s: %w", category, err)
+			}
+			encryptedCategoryBreakdown[category] = encryptedVal
+		}
+
 		tx.Set(summaryRef, map[string]interface{}{
-			"type":          "daily",
-			"date":          expense.Date,
-			"totalExpenses": encryptedTotal, // goes into EncryptedTotalExpense
-			"expenseCount":  firestore.Increment(1),
-			categoryPath:    firestore.Increment(expense.Amount), // still plain, encrypt if needed
-			"updatedAt":     time.Now(),
+			"type":              "daily",
+			"date":              expense.Date,
+			"totalExpenses":     encryptedTotal,
+			"expenseCount":      firestore.Increment(1),
+			"categoryBreakdown": encryptedCategoryBreakdown, // full encrypted map
+			"updatedAt":         time.Now(),
 		}, firestore.MergeAll)
+
 		return nil
 	})
 }
@@ -101,13 +122,24 @@ func UpdateMonthlySummaryAfterAdd(userId string, expense models.Expense) {
 
 	config.Client.RunTransaction(config.Ctx, func(ctx context.Context, tx *firestore.Transaction) error {
 		var currentTotal float64
+		categoryBreakdown := make(map[string]float64)
 
 		// Read existing summary
 		doc, err := tx.Get(summaryRef)
 		if err == nil {
 			var summary models.MonthlySummary
-			if err := doc.DataTo(&summary); err == nil && summary.EncryptedTotalExpense != "" {
-				currentTotal, _ = utils.DecryptFloat64(summary.EncryptedTotalExpense)
+			if err := doc.DataTo(&summary); err == nil {
+				//dcrypt total monthly
+				if summary.EncryptedTotalExpense != "" {
+					currentTotal, _ = utils.DecryptFloat64(summary.EncryptedTotalExpense)
+				}
+				//decrypt category monthly
+				for category, encryptedVal := range summary.EncryptedCategoryBreakdown {
+					decrypted, err := utils.DecryptFloat64(encryptedVal)
+					if err == nil {
+						categoryBreakdown[category] = decrypted
+					}
+				}
 			}
 		}
 
@@ -117,13 +149,24 @@ func UpdateMonthlySummaryAfterAdd(userId string, expense models.Expense) {
 			return fmt.Errorf("failed to encrypt total: %w", err)
 		}
 
+		// update values
+		categoryBreakdown[expense.Category] += expense.Amount
+		encryptedCategoryBreakdown := make(map[string]interface{})
+		for category, amount := range categoryBreakdown {
+			encryptedVal, err := utils.EncryptFloat64(amount)
+			if err != nil {
+				return fmt.Errorf("failed to encrypt category %s: %w", category, err)
+			}
+			encryptedCategoryBreakdown[category] = encryptedVal
+		}
+
 		categoryPath := "categoryBreakdown." + expense.Category
 		tx.Set(summaryRef, map[string]interface{}{
 			"type":          "monthly",
 			"monthYear":     expense.MonthYear,
 			"totalExpenses": encryptedTotal,
 			"expenseCount":  firestore.Increment(1),
-			categoryPath:    firestore.Increment(expense.Amount),
+			categoryPath:    encryptedCategoryBreakdown,
 			"updatedAt":     time.Now(),
 		}, firestore.MergeAll)
 		return nil
@@ -189,12 +232,24 @@ func UpdateDailySummaryAfterDelete(userId string, expense models.Expense) {
 
 	config.Client.RunTransaction(config.Ctx, func(ctx context.Context, tx *firestore.Transaction) error {
 		var currentTotal float64
+		categoryBreakdown := make(map[string]float64) // decrypted map
 
 		doc, err := tx.Get(summaryRef)
 		if err == nil {
 			var summary models.DailySummary
-			if err := doc.DataTo(&summary); err == nil && summary.EncryptedTotalExpense != "" {
-				currentTotal, _ = utils.DecryptFloat64(summary.EncryptedTotalExpense)
+			if err := doc.DataTo(&summary); err == nil {
+
+				// decrypt total
+				if summary.EncryptedTotalExpense != "" {
+					currentTotal, _ = utils.DecryptFloat64(summary.EncryptedTotalExpense)
+				}
+				// Decrypt each category
+				for category, encryptedVal := range summary.EncryptedCategoryBreakdown {
+					decrypted, err := utils.DecryptFloat64(encryptedVal)
+					if err == nil {
+						categoryBreakdown[category] = decrypted
+					}
+				}
 			}
 		}
 
@@ -204,12 +259,24 @@ func UpdateDailySummaryAfterDelete(userId string, expense models.Expense) {
 			return fmt.Errorf("failed to encrypt total: %w", err)
 		}
 
-		categoryPath := "categoryBreakdown." + expense.Category
-		tx.Set(summaryRef, map[string]interface{}{
-			"totalExpenses": encryptedTotal,
-			"expenseCount":  firestore.Increment(-1),
-			categoryPath:    firestore.Increment(-expense.Amount),
-			"updatedAt":     time.Now(),
+		// update values (Subtract)
+		categoryBreakdown[expense.Category] -= expense.Amount
+
+		// Encrypt each category
+		encryptedCategoryBreakdown := make(map[string]interface{ any })
+		for category, amount := range categoryBreakdown {
+			encryptedVal, err := utils.EncryptFloat64(amount)
+			if err != nil {
+				return fmt.Errorf("failed to encrypt category %s: %w", category, err)
+			}
+			encryptedCategoryBreakdown[category] = encryptedVal
+		}
+
+		tx.Set(summaryRef, map[string]interface{ any }{
+			"totalExpenses":     encryptedTotal,
+			"expenseCount":      firestore.Increment(-1),
+			"categoryBreakdown": encryptedCategoryBreakdown,
+			"updatedAt":         time.Now(),
 		}, firestore.MergeAll)
 		return nil
 	})
@@ -222,12 +289,24 @@ func UpdateMonthlySummaryAfterDelete(userId string, expense models.Expense) {
 
 	config.Client.RunTransaction(config.Ctx, func(ctx context.Context, tx *firestore.Transaction) error {
 		var currentTotal float64
+		categoryBreakdown := make(map[string]float64)
 
 		doc, err := tx.Get(summaryRef)
 		if err == nil {
 			var summary models.MonthlySummary
-			if err := doc.DataTo(&summary); err == nil && summary.EncryptedTotalExpense != "" {
-				currentTotal, _ = utils.DecryptFloat64(summary.EncryptedTotalExpense)
+			if err := doc.DataTo(&summary); err == nil {
+
+				//dcrypt total monthly
+				if summary.EncryptedTotalExpense != "" {
+					currentTotal, _ = utils.DecryptFloat64(summary.EncryptedTotalExpense)
+				}
+				//decrypt category monthly
+				for category, encryptedVal := range summary.EncryptedCategoryBreakdown {
+					decrypted, err := utils.DecryptFloat64(encryptedVal)
+					if err == nil {
+						categoryBreakdown[category] = decrypted
+					}
+				}
 			}
 		}
 
@@ -237,12 +316,21 @@ func UpdateMonthlySummaryAfterDelete(userId string, expense models.Expense) {
 			return fmt.Errorf("failed to encrypt total: %w", err)
 		}
 
-		categoryPath := "categoryBreakdown." + expense.Category
+		// update values
+		categoryBreakdown[expense.Category] -= expense.Amount
+		encryptedCategoryBreakdown := make(map[string]interface{})
+		for category, amount := range categoryBreakdown {
+			encryptedVal, err := utils.EncryptFloat64(amount)
+			if err != nil {
+				return fmt.Errorf("failed to encrypt category %s: %w", category, err)
+			}
+			encryptedCategoryBreakdown[category] = encryptedVal
+		}
 		tx.Set(summaryRef, map[string]interface{}{
-			"totalExpenses": encryptedTotal,
-			"expenseCount":  firestore.Increment(-1),
-			categoryPath:    firestore.Increment(-expense.Amount),
-			"updatedAt":     time.Now(),
+			"totalExpenses":     encryptedTotal,
+			"expenseCount":      firestore.Increment(-1),
+			"categoryBreakdown": encryptedCategoryBreakdown,
+			"updatedAt":         time.Now(),
 		}, firestore.MergeAll)
 		return nil
 	})

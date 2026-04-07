@@ -9,10 +9,11 @@ type DailySummary struct {
 	Date              string             `json:"date" firestore:"date"`
 	TotalExpenses     float64            `json:"totalExpenses" firestore:"-"`
 	ExpenseCount      int                `json:"expenseCount" firestore:"expenseCount"`
-	CategoryBreakdown map[string]float64 `json:"categoryBreakdown" firestore:"categoryBreakdown"`
+	CategoryBreakdown map[string]float64 `json:"categoryBreakdown" firestore:"-"`
 	UpdatedAt         time.Time          `json:"updatedAt" firestore:"updatedAt"`
 	// Encrypted fields stored in firestore
-	EncryptedTotalExpense string `json:"-" firestore:"totalExpenses"`
+	EncryptedTotalExpense      string            `json:"-" firestore:"totalExpenses"`
+	EncryptedCategoryBreakdown map[string]string `json:"-" firestore:"categoryBreakdown"`
 }
 
 type MonthlySummary struct {
@@ -26,5 +27,6 @@ type MonthlySummary struct {
 	DailyAverage      float64            `json:"dailyAverage" firestore:"dailyAverage"`
 	UpdatedAt         time.Time          `json:"updatedAt" firestore:"updatedAt"`
 	// Encrypted fields stored in firestore
-	EncryptedTotalExpense string `json:"-" firestore:"totalExpenses"`
+	EncryptedTotalExpense      string            `json:"-" firestore:"totalExpenses"`
+	EncryptedCategoryBreakdown map[string]string `json:"-" firestore:"categoryBreakdown"`
 }

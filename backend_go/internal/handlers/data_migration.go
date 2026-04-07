@@ -8,7 +8,7 @@ import (
 
 func RunMigration(c *gin.Context) {
 	userId := c.Param("userId")
-	if err := services.MigrateSummariesToEncrypted(userId); err != nil {
+	if err := services.MigrateSummariesToEncryptedV2(userId); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
