@@ -160,14 +160,13 @@ func UpdateMonthlySummaryAfterAdd(userId string, expense models.Expense) {
 			encryptedCategoryBreakdown[category] = encryptedVal
 		}
 
-		categoryPath := "categoryBreakdown." + expense.Category
 		tx.Set(summaryRef, map[string]interface{}{
-			"type":          "monthly",
-			"monthYear":     expense.MonthYear,
-			"totalExpenses": encryptedTotal,
-			"expenseCount":  firestore.Increment(1),
-			categoryPath:    encryptedCategoryBreakdown,
-			"updatedAt":     time.Now(),
+			"type":              "monthly",
+			"monthYear":         expense.MonthYear,
+			"totalExpenses":     encryptedTotal,
+			"expenseCount":      firestore.Increment(1),
+			"categoryBreakdown": encryptedCategoryBreakdown,
+			"updatedAt":         time.Now(),
 		}, firestore.MergeAll)
 		return nil
 	})

@@ -23,7 +23,7 @@ type MonthlySummary struct {
 	ExpenseCount      int                `json:"expenseCount" firestore:"expenseCount"`
 	RemainingBudget   float64            `json:"remainingBudget" firestore:"remainingBudget"`
 	SavingsAmount     float64            `json:"savingsAmount" firestore:"savingsAmount"`
-	CategoryBreakdown map[string]float64 `json:"categoryBreakdown" firestore:"categoryBreakdown"`
+	CategoryBreakdown map[string]float64 `json:"categoryBreakdown" firestore:"-"`
 	DailyAverage      float64            `json:"dailyAverage" firestore:"dailyAverage"`
 	UpdatedAt         time.Time          `json:"updatedAt" firestore:"updatedAt"`
 	// Encrypted fields stored in firestore
