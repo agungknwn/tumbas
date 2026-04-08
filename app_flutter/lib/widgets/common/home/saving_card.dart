@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../animated/shiny_sparkle.dart';
+import '../animated/shiny_text.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 class SavingCard extends StatelessWidget {
@@ -22,6 +24,7 @@ class SavingCard extends StatelessWidget {
     final amountSpent = total - amountSaved;
     final percentage = total > 0 ? (amountSaved / total * 100).toInt() : 0;
     final progress = total > 0 ? (amountSaved / total).clamp(0.0, 1.0) : 0.0;
+    final appTheme = Theme.of(context).colorScheme;
 
     final currencyFormatter = NumberFormat.currency(
       locale: 'id_ID',
@@ -66,24 +69,63 @@ class SavingCard extends StatelessWidget {
           //     .center
           //     .make()
           //     .centered(),
-          "Monthly Saving"
-              .text
-              .xl4
-              .extraBold
-              .tightest // Tighter letter spacing for a modern look
-              .make()
-              .shaderMask(
-                gradient: LinearGradient(
-                  colors: [
-                    context.primaryColor,
-                    context.primaryColor.withOpacity(0.7),
-                  ],
-                ),
-              )
-              .centered()
-              .p16(),
-          // vanilla flutter
-          // Align(
+          Row(
+            mainAxisSize: MainAxisSize.min, // 👈 important
+            children: [
+              Stack(
+                clipBehavior: Clip.none, // 👈 allow overflow (fix cropping)
+                children: [
+                  // TweenAnimationBuilder(
+                  //   tween: Tween(begin: 0.8, end: 1.1),
+                  //   duration: Duration(milliseconds: 1000),
+                  //   curve: Curves.fastEaseInToSlowEaseOut,
+                  //   builder: (context, scale, child) {
+                  //     return Transform.scale(scale: scale, child: child);
+                  //   },
+                  //   child: "Monthly Saving".text.xl4.extraBold.tightest
+                  //       .make()
+                  //       .shaderMask(
+                  //         gradient: LinearGradient(
+                  //           colors: [
+                  //             context.primaryColor,
+                  //             context.primaryColor.withOpacity(0.7),
+                  //           ],
+                  //         ),
+                  //       ),
+                  // ),
+                  ShinyText("Monthly Saving"),
+
+                  Positioned(
+                    right: -20,
+                    top: -6,
+                    // decoration: BoxDecoration(
+                    //   boxShadow: [
+                    //     BoxShadow(
+                    //       color: context.primaryColor.withOpacity(0.5),
+                    //       blurRadius: 12,
+                    //       spreadRadius: 2,
+                    //     ),
+                    //   ],
+                    // ),
+                    child: ShinySparkle(),
+                    // child: TweenAnimationBuilder(
+                    //   tween: Tween(begin: 0.8, end: 1.5),
+                    //   duration: Duration(seconds: 2),
+                    //   curve: Curves.easeInOut,
+                    //   builder: (context, scale, child) {
+                    //     return Transform.scale(scale: scale, child: child);
+                    //   },
+                    //   child: Icon(
+                    //     Icons.auto_awesome,
+                    //     size: 18,
+                    //     color: context.primaryColor,
+                    //   ),
+                    // ),
+                  ),
+                ],
+              ),
+            ],
+          ).centered().p16(), // Align(
           //   alignment: Alignment.center,
           //   child: Text(
           //     'Monthly Saving',
@@ -155,7 +197,7 @@ class SavingCard extends StatelessWidget {
               Text(
                 'Money Used: ${currencyFormatter.format(amountSpent)}',
                 style: TextStyle(
-                  color: Colors.black.withOpacity(0.9),
+                  color: appTheme.primary.withOpacity(0.9),
                   fontSize: 16,
                   fontWeight: FontWeight.w400,
                 ),
@@ -163,7 +205,7 @@ class SavingCard extends StatelessWidget {
               Text(
                 '$percentage%',
                 style: TextStyle(
-                  color: Colors.black.withOpacity(0.9),
+                  color: appTheme.primary.withOpacity(0.9),
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),

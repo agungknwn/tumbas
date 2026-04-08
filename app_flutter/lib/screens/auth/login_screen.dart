@@ -78,6 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final appTheme = Theme.of(context).colorScheme;
+    final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -135,46 +136,48 @@ class _LoginScreenState extends State<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: appTheme.tertiary,
-                        ),
-                        onPressed: () {
-                          Navigator.pushReplacementNamed(
-                            context,
-                            AppRoutes.register,
-                          );
-                        },
-                        child: Text(
-                          "Registers",
-                          style: TextStyle(color: appTheme.primary),
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: appTheme.tertiary,
-                        ),
-                        onPressed: () {
-                          final identity = idController.text.trim();
-                          final password = passwordController.text.trim();
-
-                          if (identity.isEmpty || password.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Email and Password Required"),
-                              ),
+                      if (!isKeyboardOpen)
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: appTheme.tertiary,
+                          ),
+                          onPressed: () {
+                            Navigator.pushReplacementNamed(
+                              context,
+                              AppRoutes.register,
                             );
-                            return;
-                          }
-
-                          authProvider.login(identity, password);
-                        },
-                        child: Text(
-                          "Login",
-                          style: TextStyle(color: appTheme.primary),
+                          },
+                          child: Text(
+                            "Registers",
+                            style: TextStyle(color: appTheme.primary),
+                          ),
                         ),
-                      ),
+                      SizedBox(width: 10),
+                      if (!isKeyboardOpen)
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: appTheme.tertiary,
+                          ),
+                          onPressed: () {
+                            final identity = idController.text.trim();
+                            final password = passwordController.text.trim();
+
+                            if (identity.isEmpty || password.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Email and Password Required"),
+                                ),
+                              );
+                              return;
+                            }
+
+                            authProvider.login(identity, password);
+                          },
+                          child: Text(
+                            "Login",
+                            style: TextStyle(color: appTheme.primary),
+                          ),
+                        ),
                     ],
                   ),
 

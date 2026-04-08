@@ -347,7 +347,7 @@ final Map<String, IconData> categoryIcons = {
 final Map<String, Color> categoryColors = {
   "Food": Colors.blue,
   "Transport": Colors.orange,
-  "Shopping": Colors.teal,
+  "Shopping": Colors.red,
   "Bills": Colors.green,
   "Entertainment": Colors.purple,
   "Other": Colors.grey,
