@@ -111,6 +111,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
       NavItem(Icons.money_rounded, 'Expenses'),
     ];
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       drawer: AppDrawer(
         userId: widget.userId,
         onLogout: () {

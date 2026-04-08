@@ -29,6 +29,12 @@ class ExpenseCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        border: Border(
+          left: BorderSide(
+            color: categoryColors[category] ?? Colors.black,
+            width: 3,
+          ),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -48,9 +54,20 @@ class ExpenseCard extends StatelessWidget {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
               SizedBox(height: 4),
-              Text(
-                category,
-                style: TextStyle(fontSize: 14, color: Colors.grey),
+              // category name
+              Row(
+                children: [
+                  Icon(
+                    getCategoryIcon(category),
+                    size: 16,
+                    color: categoryColors[category],
+                  ),
+                  SizedBox(width: 5),
+                  Text(
+                    category,
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                ],
               ),
             ],
           ),
@@ -138,3 +155,35 @@ class EditButton extends StatelessWidget {
     );
   }
 }
+
+// helper func
+IconData getCategoryIcon(String category) {
+  switch (category.toLowerCase()) {
+    case 'food':
+      return Icons.restaurant;
+    case 'transport':
+      return Icons.directions_car;
+    case 'shopping':
+      return Icons.shopping_bag;
+    case 'entertainment':
+      return Icons.movie;
+    case 'bills':
+      return Icons.receipt_long;
+    case 'health':
+      return Icons.favorite;
+    case 'education':
+      return Icons.school;
+    case 'other':
+    default:
+      return Icons.category;
+  }
+}
+
+final Map<String, Color> categoryColors = {
+  "Food": Colors.blue,
+  "Transport": Colors.orange,
+  "Shopping": Colors.teal,
+  "Bills": Colors.green,
+  "Entertainment": Colors.purple,
+  "Other": Colors.grey,
+};

@@ -61,11 +61,27 @@ class SavingCard extends StatelessWidget {
         children: [
           // Title
           // velocity x example
-          "Monthly Saving".text.xl4
-              .color(context.primaryColor)
-              .center
+          // "Monthly Saving".text.xl4
+          //     .color(context.primaryColor)
+          //     .center
+          //     .make()
+          //     .centered(),
+          "Monthly Saving"
+              .text
+              .xl4
+              .extraBold
+              .tightest // Tighter letter spacing for a modern look
               .make()
-              .centered(),
+              .shaderMask(
+                gradient: LinearGradient(
+                  colors: [
+                    context.primaryColor,
+                    context.primaryColor.withOpacity(0.7),
+                  ],
+                ),
+              )
+              .centered()
+              .p16(),
           // vanilla flutter
           // Align(
           //   alignment: Alignment.center,

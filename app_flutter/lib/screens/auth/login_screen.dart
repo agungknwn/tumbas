@@ -108,6 +108,12 @@ class _LoginScreenState extends State<LoginScreen> {
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Image.asset(
+                  'assets/app_icon.png',
+                  width: 200,
+                  height: 200,
+                  fit: BoxFit.contain,
+                ),
                 TextField(
                   controller: idController,
                   decoration: const InputDecoration(

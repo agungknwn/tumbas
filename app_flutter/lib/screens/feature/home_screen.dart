@@ -1,6 +1,6 @@
 import 'package:ngirit_app/providers/budget_provider.dart';
 import 'package:ngirit_app/providers/summaries_provider.dart';
-import 'package:ngirit_app/widgets/common/charts/example_pie.dart';
+import 'package:ngirit_app/widgets/common/charts/category_expense_pie_cart.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/common/home/home_header.dart';
@@ -8,6 +8,7 @@ import '../../widgets/common/home/home_header.dart';
 import '../../widgets/common/home/saving_card.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -25,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final appTheme = Theme.of(context).colorScheme;
     final summariesProvider = context.watch<SummariesProvider>();
     final budgetProvider = context.watch<BudgetProvider>();
 
@@ -33,34 +35,73 @@ class _HomeScreenState extends State<HomeScreen> {
     final double totalBudget = budgetProvider.userBudget?.amount ?? 0.0;
     final double savingAmount = totalBudget - totalMonthlySpending;
 
-    print("Spent Amount: $totalMonthlySpending");
-
     return Padding(
       padding: const EdgeInsets.all(0),
       child: Column(
         children: [
           HomeHeader(
             currentMonthYear: summariesProvider.monthYear,
-            currencies: ['IDR', 'USD', 'EUR'],
+            currencies: ['IDR', 'USD', 'EUR', 'KRN'],
           ),
           SavingCard(
             amountSaved: savingAmount,
             total: totalBudget,
             isLoading: budgetProvider.isLoading,
           ),
+
           // SizedBox(height: 5),
+          // Padding(
+          //   padding: const EdgeInsets.all(12),
+          //   child: Container(
+          //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          //     decoration: BoxDecoration(
+          //       color: Colors.black.withOpacity(0.8),
+          //       borderRadius: BorderRadius.circular(16),
+          //       border: Border.all(color: Colors.black.withOpacity(0.15)),
+          //     ),
+          //     child: Row(
+          //       children: [
+          //         Icon(Icons.pie_chart, color: Colors.white.withOpacity(0.8)),
+          //         SizedBox(width: 10),
+          //         Text(
+          //           "Expense by Category",
+          //           style: TextStyle(
+          //             fontSize: 18,
+          //             fontWeight: FontWeight.w600,
+          //             color: Colors.white,
+          //           ),
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // ),
           Padding(
-            padding: const EdgeInsets.all(12),
-            child: SizedBox(
-              width: double.infinity,
-              child: Text(
-                textAlign: TextAlign.start,
-                "Expense By Category",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
-              ),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Row(
+              children: [
+                // Container(
+                //   width: 4,
+                //   height: 28,
+                //   decoration: BoxDecoration(
+                //     color: appTheme.tertiary,
+                //     borderRadius: BorderRadius.circular(2),
+                //   ),
+                // ),
+                // const SizedBox(width: 12),
+                Icon(Icons.pie_chart, color: Colors.black.withOpacity(0.8)),
+                SizedBox(width: 10),
+                Text(
+                  "Expense By Category",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: appTheme.primary,
+                  ),
+                ),
+              ],
             ),
           ),
-          PieChartSample2(),
+          ExpenseCategoryPieChart(),
         ],
       ),
     );

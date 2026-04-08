@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ngirit_app/config/theme.dart';
 import 'package:ngirit_app/providers/expense_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -40,6 +39,8 @@ class _ExpenseFormState extends State<ExpenseForm> {
   bool _isInitialized = false;
   final titleController = TextEditingController();
   final amountController = TextEditingController();
+  final ScrollController _chipScrollController = ScrollController();
+  final Map<String, GlobalKey> _chipKeys = {};
   String selectedCategory = "Food";
 
   final List<String> categories = [
@@ -55,12 +56,16 @@ class _ExpenseFormState extends State<ExpenseForm> {
   void dispose() {
     titleController.dispose();
     amountController.dispose();
+    _chipScrollController.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   _scrollToChip(selectedCategory);
+    // });
     if (widget.expenseId != null) {
       widget.onOpen?.call(widget.expenseId!);
     }
@@ -141,6 +146,19 @@ class _ExpenseFormState extends State<ExpenseForm> {
     }
   }
 
+  void _scrollToChip(String cat) {
+    final key = _chipKeys[cat];
+    final context = key?.currentContext;
+    if (context == null) return;
+
+    Scrollable.ensureVisible(
+      context,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      alignment: 0.0,
+    );
+  }
+
   void _handleDelete(BuildContext context) {
     if (widget.onDelete != null) {
       widget.onDelete!(widget.expenseId);
@@ -161,6 +179,11 @@ class _ExpenseFormState extends State<ExpenseForm> {
       titleController.text = targetExpense.name;
       amountController.text = targetExpense.amount.toString();
       selectedCategory = targetExpense.category;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToChip(selectedCategory);
+      });
+      // debugPrint("init cat: $selectedCategory");
       _isInitialized = true;
     }
     return Column(
@@ -202,35 +225,70 @@ class _ExpenseFormState extends State<ExpenseForm> {
         SizedBox(height: 8),
 
         // scroll view categories
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: categories.map((cat) {
-              final bool active = selectedCategory == cat;
-              return Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: ChoiceChip(
-                  label: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.circle, size: 16),
-                      const SizedBox(width: 5),
-                      Text(cat),
-                    ],
-                  ),
-                  selected: active,
-                  onSelected: (_) {
-                    setState(() => selectedCategory = cat);
-                  },
-                  selectedColor: appTheme.tertiary,
-                  backgroundColor: Colors.grey.shade200,
-                  labelStyle: TextStyle(
-                    color: active ? appTheme.primary : Colors.black,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              );
-            }).toList(),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(25), // row radius
+          child: IntrinsicHeight(
+            // forces all children to match tallest
+            child: SingleChildScrollView(
+              controller: _chipScrollController,
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                crossAxisAlignment:
+                    CrossAxisAlignment.stretch, // stretch to IntrinsicHeight
+                children: categories.map((cat) {
+                  _chipKeys[cat] ??= GlobalKey();
+                  final bool active = selectedCategory == cat;
+                  return Padding(
+                    key: _chipKeys[cat],
+                    padding: const EdgeInsets.only(right: 10),
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() => selectedCategory = cat);
+                        _scrollToChip(cat);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: active
+                              ? appTheme.tertiary
+                              : Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(
+                            25,
+                          ), // chip radius
+                          border: Border.all(
+                            color: active
+                                ? appTheme.tertiary
+                                : appTheme.primary,
+                            width: 0.5,
+                          ),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              getCategoryIcon(cat),
+                              size: 16,
+                              color: active ? appTheme.primary : Colors.black,
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              cat,
+                              style: TextStyle(
+                                color: active ? appTheme.primary : Colors.black,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
           ),
         ),
 
@@ -326,5 +384,28 @@ class _ExpenseFormState extends State<ExpenseForm> {
         ),
       ],
     );
+  }
+}
+
+// helper func
+IconData getCategoryIcon(String category) {
+  switch (category.toLowerCase()) {
+    case 'food':
+      return Icons.restaurant;
+    case 'transport':
+      return Icons.directions_car;
+    case 'shopping':
+      return Icons.shopping_bag;
+    case 'entertainment':
+      return Icons.movie;
+    case 'bills':
+      return Icons.receipt_long;
+    case 'health':
+      return Icons.favorite;
+    case 'education':
+      return Icons.school;
+    case 'other':
+    default:
+      return Icons.category;
   }
 }

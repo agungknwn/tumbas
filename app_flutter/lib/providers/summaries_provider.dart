@@ -37,9 +37,10 @@ class SummariesProvider extends ChangeNotifier {
       );
     } catch (e) {
       Exception(e.toString());
-      print("getMonthlySummaries error: $e");
+      // debugPrint("getMonthlySummaries error: $e");
     } finally {
-      print("Summaries Provider: $monthlySummaries");
+      // debugPrint("Summaries Provider: $monthlySummaries");
+      // debugPrint("Summaries Provider: ${monthlySummaries!.categories}");
       isLoading = false;
       notifyListeners();
     }

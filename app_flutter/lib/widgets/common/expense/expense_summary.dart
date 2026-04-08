@@ -7,6 +7,7 @@ class SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appTheme = Theme.of(context).colorScheme;
     return Positioned(
       top: 16,
       left: 24,
@@ -16,7 +17,7 @@ class SummaryCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border(left: BorderSide(color: Colors.pink, width: 4)),
+          border: Border(left: BorderSide(color: appTheme.tertiary, width: 4)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
