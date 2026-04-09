@@ -78,7 +78,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final appTheme = Theme.of(context).colorScheme;
-    final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -106,37 +105,39 @@ class _LoginScreenState extends State<LoginScreen> {
               });
             }
 
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'assets/app_icon.png',
-                  width: 200,
-                  height: 200,
-                  fit: BoxFit.contain,
-                ),
-                TextField(
-                  controller: idController,
-                  decoration: const InputDecoration(
-                    labelText: "Email/Username",
+            return SingleChildScrollView(
+              padding: const EdgeInsets.only(top: 64),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'assets/app_icon.png',
+                    width: 300,
+                    height: 300,
+                    fit: BoxFit.contain,
                   ),
-                  enabled: !authProvider.isLoading,
-                ),
-                TextField(
-                  controller: passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(labelText: "Password"),
-                  enabled: !authProvider.isLoading,
-                ),
-                const SizedBox(height: 20),
+                  TextField(
+                    controller: idController,
+                    decoration: const InputDecoration(
+                      labelText: "Email/Username",
+                    ),
+                    enabled: !authProvider.isLoading,
+                  ),
+                  TextField(
+                    controller: passwordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(labelText: "Password"),
+                    enabled: !authProvider.isLoading,
+                  ),
+                  const SizedBox(height: 20),
 
-                if (authProvider.isLoading)
-                  const CircularProgressIndicator()
-                else
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (!isKeyboardOpen)
+                  if (authProvider.isLoading)
+                    const CircularProgressIndicator()
+                  else
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // if (!isKeyboardOpen)
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: appTheme.tertiary,
@@ -152,8 +153,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: TextStyle(color: appTheme.primary),
                           ),
                         ),
-                      SizedBox(width: 10),
-                      if (!isKeyboardOpen)
+                        SizedBox(width: 10),
+                        // if (!isKeyboardOpen)
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: appTheme.tertiary,
@@ -178,19 +179,20 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: TextStyle(color: appTheme.primary),
                           ),
                         ),
-                    ],
-                  ),
+                      ],
+                    ),
 
-                if (_biometricAvailable) ...[
-                  const SizedBox(height: 16),
-                  IconButton(
-                    iconSize: 48,
-                    icon: const Icon(Icons.fingerprint),
-                    tooltip: 'Login with biometrics',
-                    onPressed: _loginWithBiometric,
-                  ),
+                  if (_biometricAvailable) ...[
+                    const SizedBox(height: 16),
+                    IconButton(
+                      iconSize: 48,
+                      icon: const Icon(Icons.fingerprint),
+                      tooltip: 'Login with biometrics',
+                      onPressed: _loginWithBiometric,
+                    ),
+                  ],
                 ],
-              ],
+              ),
             );
           },
         ),
