@@ -7,6 +7,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"github.com/agungknwn/ngirit_backend/internal/config"
 	"github.com/agungknwn/ngirit_backend/internal/models"
+	"github.com/agungknwn/ngirit_backend/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,7 +23,22 @@ func GetBudget(c *gin.Context) {
 	}
 
 	var budget models.Budget
-	doc.DataTo(&budget)
+
+	if err := doc.DataTo(&budget); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse budget amount"})
+		return
+	}
+
+	if budget.EncryptedMonthlyBudget != "" {
+		decryptedAmount, err := utils.DecryptFloat64(budget.EncryptedMonthlyBudget)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Decryption failed"})
+			return
+		}
+
+		budget.MonthlyBudget = decryptedAmount
+	}
+	// doc.DataTo(&budget)
 	c.JSON(http.StatusOK, budget)
 }
 
@@ -59,15 +75,21 @@ func UpdateBudget(c *gin.Context) {
 		return
 	}
 
+	encryptedVal, err := utils.EncryptFloat64(budget.MonthlyBudget)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Encryption Failed"})
+		return
+	}
+
 	//budget.UpdatedAt = time.Now()
 	updateData := map[string]interface{}{
-		"amount":    budget.MonthlyBudget,
+		"amount":    encryptedVal,
 		"currency":  budget.Currency,
 		"monthYear": budget.MonthYear,
 		"updatedAt": time.Now(),
 	}
 
-	_, err := config.Client.Collection("users").Doc(userId).
+	_, err = config.Client.Collection("users").Doc(userId).
 		Collection("budgets").Doc(budgetId).Set(config.Ctx, updateData, firestore.MergeAll)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

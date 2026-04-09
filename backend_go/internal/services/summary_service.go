@@ -11,7 +11,53 @@ import (
 	"github.com/agungknwn/ngirit_backend/internal/utils"
 )
 
-//// ==================== HELPER FUNCTIONS FOR SUMMARIES ====================
+// // ==================== HELPER FUNCTIONS FOR SUMMARIES ====================
+func InitUserSummaries(userId string) error {
+	now := time.Now()
+	monthId := "monthly_" + now.Format("2006-01")
+	dailyId := "daily_" + now.Format("2006-01-02")
+
+	summariesRef := config.Client.Collection("users").Doc(userId).Collection("summaries")
+
+	// Encrypt zero values
+	encryptedZero, err := utils.EncryptFloat64(0)
+	if err != nil {
+		return fmt.Errorf("failed to encrypt zero: %w", err)
+	}
+
+	batch := config.Client.Batch()
+
+	// Monthly summary
+	monthlyRef := summariesRef.Doc(monthId)
+	batch.Set(monthlyRef, map[string]interface{}{
+		"type":              "monthly",
+		"monthYear":         now.Format("2006-01"),
+		"totalExpenses":     encryptedZero,
+		"expenseCount":      0,
+		"categoryBreakdown": map[string]interface{}{},
+		"createdAt":         now,
+		"updatedAt":         now,
+	})
+
+	// Daily summary
+	dailyRef := summariesRef.Doc(dailyId)
+	batch.Set(dailyRef, map[string]interface{}{
+		"type":              "daily",
+		"date":              now.Format("2006-01-02"),
+		"totalExpenses":     encryptedZero,
+		"expenseCount":      0,
+		"categoryBreakdown": map[string]interface{}{},
+		"createdAt":         now,
+		"updatedAt":         now,
+	})
+
+	_, err = batch.Commit(config.Ctx)
+	if err != nil {
+		return fmt.Errorf("failed to init summaries: %w", err)
+	}
+
+	return nil
+}
 
 //	func UpdateDailySummaryAfterAdd(userId string, expense models.Expense) {
 //		summaryId := "daily_" + expense.Date

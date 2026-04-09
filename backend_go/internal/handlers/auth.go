@@ -7,6 +7,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"github.com/agungknwn/ngirit_backend/internal/config"
 	"github.com/agungknwn/ngirit_backend/internal/models"
+	"github.com/agungknwn/ngirit_backend/internal/services"
 	"github.com/agungknwn/ngirit_backend/internal/utils"
 	"github.com/gin-gonic/gin"
 )
@@ -70,7 +71,11 @@ func Register(c *gin.Context) {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-
+	if err := services.InitUserSummaries(cred.Username); err != nil {
+		// log.Printf("warning: failed to init summaries for user %s: %v", cred.Username, err)
+		c.JSON(500, gin.H{"error": err.Error()})
+		// non-fatal — don't block registration
+	}
 	c.JSON(200, gin.H{"userId": cred.Username})
 }
 
