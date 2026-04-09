@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ngirit_app/config/theme.dart';
 import 'package:ngirit_app/providers/budget_provider.dart';
+import 'package:ngirit_app/providers/common_provider.dart';
 import 'package:ngirit_app/providers/expense_provider.dart';
 import 'package:ngirit_app/providers/summaries_provider.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ExpenseProvider()),
         ChangeNotifierProvider(create: (_) => BudgetProvider()),
         ChangeNotifierProvider(create: (_) => SummariesProvider()),
+        ChangeNotifierProvider(create: (_) => CommonProvider()),
       ],
       child: MaterialApp(
         title: 'Ngirit App',

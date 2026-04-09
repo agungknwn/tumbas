@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../../models/expenses.dart';
 import '../../../widgets/common/expense/expense_card.dart';
 
 class ExpenseList extends StatelessWidget {
   final bool isToday;
   final List<ExpenseResponse> expenses;
+  final String currency;
   // final Future<void> Function(String expenseId) onEditButtonPressed;
 
   const ExpenseList({
     super.key,
     required this.expenses,
     required this.isToday,
+    required this.currency,
     // required this.onEditButtonPressed,
   });
 
   @override
   Widget build(BuildContext context) {
+    var currencyFormat = NumberFormat.simpleCurrency(name: currency);
     return Padding(
       padding: EdgeInsets.only(top: 200),
       child: ListView.separated(
@@ -28,7 +32,8 @@ class ExpenseList extends StatelessWidget {
             expenseId: item.expenseId,
             title: item.name,
             category: item.category,
-            price: 'Rp. ${item.amount.toStringAsFixed(0)}',
+            // price: 'Rp. ${item.amount.toStringAsFixed(0)}',
+            price: currencyFormat.format(item.amount),
             isToday: isToday,
             // (expenseId) => onEditButtonPressed(item.expenseId),
             // onEditButtonPressed: onEditButtonPressed,

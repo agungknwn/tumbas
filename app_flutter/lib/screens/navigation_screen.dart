@@ -8,7 +8,7 @@ import 'package:ngirit_app/screens/feature/home_screen.dart';
 import '../../widgets/common/popup/expense_form.dart';
 import '../providers/expense_provider.dart';
 import 'feature/expenses_screen.dart';
-import '../widgets/common/bottom_navbar.dart';
+import '../widgets/common/generic/bottom_navbar.dart';
 // import 'feature/account_screen.dart';
 // import 'package:ngirit_app/utils/counter_be.dart';
 

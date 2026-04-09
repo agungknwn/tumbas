@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:ngirit_app/providers/common_provider.dart';
+import 'package:ngirit_app/widgets/common/generic/header_dropdown.dart';
+import 'package:provider/provider.dart';
 
-class HomeHeader extends StatelessWidget {
+class HomeHeader extends StatefulWidget {
   final String currentMonthYear;
   final List<String> currencies;
   const HomeHeader({
@@ -11,8 +14,17 @@ class HomeHeader extends StatelessWidget {
   });
 
   @override
+  State<HomeHeader> createState() => _HomeHeaderState();
+}
+
+class _HomeHeaderState extends State<HomeHeader> {
+  @override
   Widget build(BuildContext context) {
     final ColorScheme appTheme = Theme.of(context).colorScheme;
+    final provider = context.watch<CommonProvider>();
+    // provider.selectedCurrency = selectedCurrency;
+
+    // debugPrint('selected currency: ${provider.selectedCurrency}');
     return Container(
       // padding: const EdgeInsets.fromLTRB(12, 34, 12, 0),
       width: double.infinity,
@@ -66,7 +78,7 @@ class HomeHeader extends StatelessWidget {
             const SizedBox(width: 8),
             // month year text
             Text(
-              formatMonthYear(currentMonthYear),
+              formatMonthYear(widget.currentMonthYear),
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
@@ -76,30 +88,47 @@ class HomeHeader extends StatelessWidget {
             const Spacer(),
 
             // const currencies = <String>['IDR', 'USD', 'EUR'];
-            //Dropdown currency
-            DropdownButton<String>(
-              value: 'IDR',
-              style: TextStyle(color: Colors.black87),
-              underline: SizedBox(),
-              icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 20),
-              items: currencies.map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              selectedItemBuilder: (context) {
-                return currencies.map((value) {
-                  return Center(
-                    child: Text(
-                      value,
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  );
-                }).toList();
+            HeaderDropdown(
+              items: widget.currencies,
+              value: provider.selectedCurrency,
+              onChanged: (val) {
+                if (val != null) {
+                  setState(() {
+                    // selectedCurrency = val;
+                    provider.selectedCurrency = val;
+                    // Provider.of<CommonProvider>(
+                    //   context,
+                    //   listen: false,
+                    // ).selectedCurrency = val;
+                    // provider.selectedCurrency = val;
+                  });
+                }
               },
-              onChanged: (value) {},
             ),
+            //Dropdown currency
+            // DropdownButton<String>(
+            //   value: 'IDR',
+            //   style: TextStyle(color: Colors.black87),
+            //   underline: SizedBox(),
+            //   icon: Icon(Icons.arrow_drop_down, color: Colors.white, size: 20),
+            //   items: currencies.map((String value) {
+            //     return DropdownMenuItem<String>(
+            //       value: value,
+            //       child: Text(value),
+            //     );
+            //   }).toList(),
+            //   selectedItemBuilder: (context) {
+            //     return currencies.map((value) {
+            //       return Center(
+            //         child: Text(
+            //           value,
+            //           style: const TextStyle(color: Colors.white),
+            //         ),
+            //       );
+            //     }).toList();
+            //   },
+            //   onChanged: (value) {},
+            // ),
           ],
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:ngirit_app/providers/budget_provider.dart';
+import 'package:ngirit_app/providers/common_provider.dart';
 import 'package:ngirit_app/providers/summaries_provider.dart';
 import 'package:ngirit_app/widgets/common/charts/category_expense_pie_cart.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +15,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  List<String> currencies = ['IDR', 'USD', 'EUR', 'SEK'];
   @override
   void initState() {
     super.initState();
@@ -29,7 +31,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final appTheme = Theme.of(context).colorScheme;
     final summariesProvider = context.watch<SummariesProvider>();
     final budgetProvider = context.watch<BudgetProvider>();
+    final commonProvider = context.watch<CommonProvider>();
 
+    // debugPrint('selected currency: ${commonProvider.selectedCurrency}');
     final double totalMonthlySpending =
         summariesProvider.monthlySummaries?.totalExpenses ?? 0.0;
     final double totalBudget = budgetProvider.userBudget?.amount ?? 0.0;
@@ -41,12 +45,13 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           HomeHeader(
             currentMonthYear: summariesProvider.monthYear,
-            currencies: ['IDR', 'USD', 'EUR', 'KRN'],
+            currencies: currencies,
           ),
           SavingCard(
             amountSaved: savingAmount,
             total: totalBudget,
             isLoading: budgetProvider.isLoading,
+            currency: commonProvider.selectedCurrency,
           ),
 
           // SizedBox(height: 5),
@@ -101,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-          ExpenseCategoryPieChart(),
+          ExpenseCategoryPieChart(currency: commonProvider.selectedCurrency),
         ],
       ),
     );

@@ -1,16 +1,19 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:ngirit_app/providers/summaries_provider.dart';
 import 'package:provider/provider.dart';
 
 class ExpenseCategoryPieChart extends StatefulWidget {
-  const ExpenseCategoryPieChart({super.key});
+  final String currency;
+
+  const ExpenseCategoryPieChart({super.key, required this.currency});
 
   @override
   State<StatefulWidget> createState() => ExpenseCategoryPieChartState();
 }
 
-class ExpenseCategoryPieChartState extends State {
+class ExpenseCategoryPieChartState extends State<ExpenseCategoryPieChart> {
   int touchedIndex = -1;
 
   @override
@@ -30,7 +33,7 @@ class ExpenseCategoryPieChartState extends State {
         children: <Widget>[
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
-            child: buildTopInfo(categoryBreakdown),
+            child: buildTopInfo(categoryBreakdown, widget.currency),
           ),
           // buildTopInfo(),
           const SizedBox(height: 10),
@@ -105,7 +108,7 @@ class ExpenseCategoryPieChartState extends State {
   // ];
   //
 
-  Widget buildTopInfo(data) {
+  Widget buildTopInfo(data, String currency) {
     if (touchedIndex == -1) {
       return const SizedBox(height: 40); // keep layout stable
       // return const SizedBox(height: 1); // keep layout stable
@@ -115,6 +118,7 @@ class ExpenseCategoryPieChartState extends State {
 
     final item = categories[touchedIndex];
     // debugPrint("categories length: ${categories.length}");
+    final currencyFormat = NumberFormat.simpleCurrency(name: currency);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -124,7 +128,8 @@ class ExpenseCategoryPieChartState extends State {
           Icon(item["icon"] as IconData, color: item["color"] as Color),
           const SizedBox(width: 8),
           Text(
-            "${item["title"]}: ${formatCurrency(item["value"] as double, "Rp. ")}",
+            // "${item["title"]}: ${formatCurrency(item["value"] as double, "Rp. ")}",
+            "${item["title"]}: ${currencyFormat.format(item["value"])}",
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
         ],
@@ -135,6 +140,49 @@ class ExpenseCategoryPieChartState extends State {
   List<PieChartSectionData> showingSections(
     Map<String, double> categoryBreakdown,
   ) {
+    // 1. Calculate the total sum of all values handle empty values data
+    final double totalValue = categoryBreakdown.values.fold(
+      0,
+      (sum, item) => sum + item,
+    );
+
+    final appTheme = Theme.of(context).colorScheme;
+
+    // 2. Handle the "No Data" case (Empty OR all Zeros)
+    if (categoryBreakdown.isEmpty || totalValue == 0) {
+      return [
+        PieChartSectionData(
+          // color: Colors.grey.withOpacity(0.3),
+          color: appTheme.primary.withValues(alpha: 1.0),
+          value: 1, // Give it a nominal value to render the circle
+          radius: 130,
+          showTitle: true,
+          title: "No Data",
+          titleStyle: TextStyle(
+            // color: Colors.grey.shade600,
+            color: appTheme.tertiary,
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ];
+    }
+
+    if (categoryBreakdown.isEmpty) {
+      return [
+        PieChartSectionData(
+          color: Colors.grey.shade300,
+          value: 1,
+          title: "No data",
+          titleStyle: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.black54,
+          ),
+          radius: 100,
+        ),
+      ];
+    }
     final baseRadius = 65; // 30% rad
     // final radiusScale = <double>[1.0, 1.2, 0.9, 1.1, 1.0, 0.8];
     // final radiusValues = <double>[110, 90, 100, 110, 100, 80];
@@ -156,24 +204,6 @@ class ExpenseCategoryPieChartState extends State {
     //     .map((e) => e.key)
     //     .toList();
     final categoryList = sortedEntries.map((e) => e.key).toList();
-
-    if (dataValues.isEmpty) {
-      return [
-        PieChartSectionData(
-          color: Colors.grey.shade300,
-          value: 1,
-          title: "No data",
-          titleStyle: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.black54,
-          ),
-          radius: 100,
-        ),
-      ];
-    }
-    // debugPrint("data values: ${dataValues}");
-    // debugPrint("data values length: ${dataValues.length}");
 
     return List.generate(dataValues.length, (i) {
       // debugPrint("touched index: $i");

@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class SummaryCard extends StatelessWidget {
   final double total;
+  final String currency;
 
-  const SummaryCard({super.key, required this.total});
+  const SummaryCard({super.key, required this.total, required this.currency});
 
   @override
   Widget build(BuildContext context) {
     final appTheme = Theme.of(context).colorScheme;
+    var currencyFormat = NumberFormat.simpleCurrency(name: currency);
     return Positioned(
       top: 16,
       left: 24,
@@ -35,7 +38,8 @@ class SummaryCard extends StatelessWidget {
             ),
             SizedBox(height: 8),
             Text(
-              'Rp. ${total.toStringAsFixed(0)}',
+              // 'Rp. ${total.toStringAsFixed(0)}',
+              currencyFormat.format(total),
               style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
           ],

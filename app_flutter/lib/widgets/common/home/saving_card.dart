@@ -8,12 +8,14 @@ class SavingCard extends StatelessWidget {
   final double amountSaved;
   final double total;
   final bool isLoading;
+  final String currency;
 
   const SavingCard({
     super.key,
     required this.amountSaved,
     required this.total,
     required this.isLoading,
+    required this.currency,
   });
 
   @override
@@ -26,11 +28,13 @@ class SavingCard extends StatelessWidget {
     final progress = total > 0 ? (amountSaved / total).clamp(0.0, 1.0) : 0.0;
     final appTheme = Theme.of(context).colorScheme;
 
-    final currencyFormatter = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp ',
-      decimalDigits: 2,
-    );
+    // final currencyFormatter = NumberFormat.currency(
+    //   locale: 'id_ID',
+    //   symbol: 'Rp ',
+    //   decimalDigits: 2,
+    // );
+
+    var currencyFormatter = NumberFormat.simpleCurrency(name: currency);
 
     Color getProgressColor(double progress) {
       if (progress > 0.5) {

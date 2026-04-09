@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ngirit_app/providers/budget_provider.dart';
+import 'package:ngirit_app/widgets/common/generic/dropdown.dart';
 import 'package:provider/provider.dart';
 
 class SetBudgetForm extends StatefulWidget {
@@ -15,11 +16,12 @@ class _SetBudgetFormState extends State<SetBudgetForm> {
   final TextEditingController _amountController = TextEditingController();
   String _selectedCurrency = 'IDR';
 
-  final List<String> currencies = ['USD', 'IDR', 'EUR'];
+  final List<String> currencies = ['USD', 'IDR', 'EUR', 'SEK'];
 
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _budgetProvider = context.read<BudgetProvider>();
 
@@ -44,7 +46,9 @@ class _SetBudgetFormState extends State<SetBudgetForm> {
 
   @override
   Widget build(BuildContext context) {
+    final appTheme = Theme.of(context).colorScheme;
     return AlertDialog(
+      backgroundColor: appTheme.secondary,
       title: const Text('Set Monthly Budget'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -58,23 +62,33 @@ class _SetBudgetFormState extends State<SetBudgetForm> {
             ),
           ),
           const SizedBox(height: 16),
-          DropdownButtonFormField<String>(
+          // DropdownButtonFormField<String>(
+          //   value: _selectedCurrency,
+          //   items: currencies
+          //       .map(
+          //         (currency) =>
+          //             DropdownMenuItem(value: currency, child: Text(currency)),
+          //       )
+          //       .toList(),
+          //   onChanged: (value) {
+          //     setState(() {
+          //       _selectedCurrency = value!;
+          //     });
+          //   },
+          //   decoration: const InputDecoration(
+          //     labelText: "Currency",
+          //     border: OutlineInputBorder(),
+          //   ),
+          // ),
+          AppDropdown(
+            label: 'Currency',
             value: _selectedCurrency,
-            items: currencies
-                .map(
-                  (currency) =>
-                      DropdownMenuItem(value: currency, child: Text(currency)),
-                )
-                .toList(),
+            items: currencies,
             onChanged: (value) {
               setState(() {
                 _selectedCurrency = value!;
               });
             },
-            decoration: const InputDecoration(
-              labelText: "Currency",
-              border: OutlineInputBorder(),
-            ),
           ),
           const SizedBox(height: 16),
           Row(

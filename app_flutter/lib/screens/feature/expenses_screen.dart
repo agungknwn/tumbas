@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:ngirit_app/providers/common_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:ngirit_app/providers/expense_provider.dart';
-import '../../widgets/common/datepicker.dart';
+import '../../widgets/common/generic/datepicker.dart';
 import '../../widgets/common/expense/expense_list.dart';
 import '../../widgets/common/expense/expense_list_header.dart';
 import '../../widgets/common/expense/expense_screen_header.dart';
@@ -15,6 +16,7 @@ class ExpensesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ExpenseProvider>();
+    final commonProvider = context.watch<CommonProvider>();
     // if (provider.isLoading) {
     //   return CircularProgressIndicator();
     // }
@@ -41,12 +43,16 @@ class ExpensesScreen extends StatelessWidget {
                 if (provider.isLoading)
                   Center(child: CircularProgressIndicator()),
                 // Total expenses card (overlapping)
-                SummaryCard(total: provider.totalAmount),
+                SummaryCard(
+                  total: provider.totalAmount,
+                  currency: commonProvider.selectedCurrency,
+                ),
                 ExpenseListHeader(title: provider.expenseListTitle),
                 // Scrollable expense list
                 ExpenseList(
                   expenses: provider.expenses,
                   isToday: provider.isToday,
+                  currency: commonProvider.selectedCurrency,
                 ),
               ],
             ),

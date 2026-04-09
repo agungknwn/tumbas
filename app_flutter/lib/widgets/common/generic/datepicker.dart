@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/expense_provider.dart';
+import '../../../providers/expense_provider.dart';
 
 // default color -> Color(0xFF4A90E2)
 
@@ -304,7 +304,8 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              color: Colors.white,
+              // color: Colors.white,
+              color: appTheme.secondary,
               borderRadius: BorderRadius.circular(20),
               border: isOpen
                   // ? Border.all(color: Color(0xFF4A90E2), width: 2)
@@ -333,7 +334,7 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
                 Text(
                   _formatDate(selectedDate),
                   style: TextStyle(
-                    color: Colors.black87,
+                    color: appTheme.primary,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),

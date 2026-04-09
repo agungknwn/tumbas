@@ -3,7 +3,7 @@ import 'package:ngirit_app/screens/feature/expenses_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
 import '../screens/navigation_screen.dart';
-import '../widgets/common/exit_wrapper.dart';
+import '../widgets/common/generic/exit_wrapper.dart';
 
 class AppRoutes {
   static const String login = '/login';
@@ -24,7 +24,7 @@ class AppRoutes {
             child: NavigationScreen(
               userId: args?['userId'],
               onAddExpense: (title, amount, category) {
-                print("Title:$title, Amount:$amount, Cat:$category");
+                // print("Title:$title, Amount:$amount, Cat:$category");
               },
             ),
           ),
