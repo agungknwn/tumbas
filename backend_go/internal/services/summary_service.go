@@ -131,6 +131,7 @@ func UpdateDailySummaryAfterAdd(userId string, expense models.Expense) {
 		tx.Set(summaryRef, map[string]interface{}{
 			"type":              "daily",
 			"date":              expense.Date,
+			"monthYear":         expense.MonthYear,
 			"totalExpenses":     encryptedTotal,
 			"expenseCount":      firestore.Increment(1),
 			"categoryBreakdown": encryptedCategoryBreakdown, // full encrypted map

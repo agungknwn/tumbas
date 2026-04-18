@@ -7,6 +7,7 @@ import (
 type DailySummary struct {
 	Type              string             `json:"type" firestore:"type"`
 	Date              string             `json:"date" firestore:"date"`
+	MonthYear         string             `json:"monthYear" firestore:"monthYear"`
 	TotalExpenses     float64            `json:"totalExpenses" firestore:"-"`
 	ExpenseCount      int                `json:"expenseCount" firestore:"expenseCount"`
 	CategoryBreakdown map[string]float64 `json:"categoryBreakdown" firestore:"-"`

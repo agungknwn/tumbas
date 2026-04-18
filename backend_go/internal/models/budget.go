@@ -16,3 +16,12 @@ type Budget struct {
 	UpdatedAt              time.Time `json:"updatedAt" firestore:"updatedAt"`
 	EncryptedMonthlyBudget string    `json:"-" firestore:"amount"`
 }
+
+type UpdateBudgetRequest struct {
+	MonthYear     string  `json:"monthYear"`
+	MonthlyBudget float64 `json:"amount"`
+	Currency      string  `json:"currency"`
+	ExchangeRate  float64 `json:"exchangeRate"` // isnt used anymore
+	ToCurrency    string  `json:"toCurrency"`
+	FromCurrency  string  `json:"fromCurrency"`
+}
