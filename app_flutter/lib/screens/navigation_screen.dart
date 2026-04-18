@@ -49,10 +49,12 @@ class _NavigationScreenState extends State<NavigationScreen> {
   }
 
   void _onCenterButtonPressed() {
+    final appTheme = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (context) {
         return Dialog(
+          backgroundColor: appTheme.secondary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),

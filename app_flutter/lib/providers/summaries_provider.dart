@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:ngirit_app/providers/common_provider.dart';
 import '../models/summaries.dart';
 import '../services/summaries_service.dart';
 
 class SummariesProvider extends ChangeNotifier {
+  // multiprovider
+  CommonProvider commonProvider;
+  SummariesProvider(this.commonProvider);
+  // Optional: Setter for the ProxyProvider to use
+  // set updateCommon(CommonProvider newCommon) {
+  //   commonProvider = newCommon;
+  //   notifyListeners();
+  // }
+
+  // logic
   late String userId;
 
   DateTime selectedDate = DateTime.now();
@@ -36,6 +47,7 @@ class SummariesProvider extends ChangeNotifier {
         dateString: monthYear,
       );
     } catch (e) {
+      // commonProvider.setServerReachable(false);
       Exception(e.toString());
       // debugPrint("getMonthlySummaries error: $e");
     } finally {

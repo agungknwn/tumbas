@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ngirit_app/providers/auth_provider.dart';
+import 'package:ngirit_app/providers/common_provider.dart';
+import 'package:ngirit_app/widgets/common/generic/ui_feedback.dart';
 import 'package:provider/provider.dart';
 import 'login_screen.dart';
 
@@ -21,6 +23,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
       TextEditingController();
 
   Future<void> _onRegister() async {
+    //check healh
+    final commonProvider = context.read<CommonProvider>();
+    await commonProvider.checkHealth();
+
+    if (!commonProvider.serverReachable) {
+      return;
+    }
+
+    if (!mounted) return;
+
+    // parse controller
     final fullname = fullnameController.text.trim();
     final username = usernameController.text.trim();
     final email = emailController.text.trim();
@@ -31,16 +44,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
         username.isEmpty ||
         password.isEmpty ||
         passwordConfirm.isEmpty) {
-      ScaffoldMessenger.of(
+      UiFeedback.show(
         context,
-      ).showSnackBar(const SnackBar(content: Text("All fields are required")));
+        message: "All fields are required",
+        type: FeedbackType.info,
+      );
       return;
     }
 
     if (password != passwordConfirm) {
-      ScaffoldMessenger.of(
+      UiFeedback.show(
         context,
-      ).showSnackBar(const SnackBar(content: Text("Passwords do not match")));
+        message: "Password do not match",
+        type: FeedbackType.error,
+      );
       return;
     }
 
@@ -52,19 +69,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       if (provider.registerStatus == true) {
         provider.registerStatus = false;
+        UiFeedback.show(
+          context,
+          message: "Registration success",
+          type: FeedbackType.success,
+        );
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => LoginScreen()),
         );
       } else {
-        ScaffoldMessenger.of(
+        UiFeedback.show(
           context,
-        ).showSnackBar(const SnackBar(content: Text("register failed")));
+          message: "Registration failed",
+          type: FeedbackType.error,
+        );
       }
     } catch (e) {
-      ScaffoldMessenger.of(
+      UiFeedback.show(
         context,
-      ).showSnackBar(SnackBar(content: Text("Register failed: $e")));
+        message: "Registration failed: ${e.toString()}",
+        type: FeedbackType.error,
+      );
     }
   }
 

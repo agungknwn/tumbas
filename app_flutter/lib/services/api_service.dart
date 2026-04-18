@@ -72,6 +72,39 @@ class ApiService {
     }
   }
 
+  // get public api
+
+  Future<dynamic> getPublic(
+    String endpoint, {
+    Map<String, dynamic>? queryParams,
+    bool requiresAuth = false,
+  }) async {
+    final url = Uri.parse(endpoint).replace(queryParameters: queryParams);
+
+    Map<String, String> headers = {'Content-Type': 'application/json'};
+
+    if (requiresAuth) {
+      final token = await _storage.getToken();
+      if (token != null) {
+        headers['Authorization'] = 'Bearer $token';
+      }
+    }
+
+    try {
+      debugPrint("🌍 GET Public $url");
+
+      final response = await http
+          .get(url, headers: headers)
+          .timeout(const Duration(seconds: 10));
+
+      return _handleResponse(response);
+    } catch (e, st) {
+      debugPrint("❌ GET FAILED $e");
+      debugPrintStack(stackTrace: st);
+      rethrow;
+    }
+  }
+
   // PATCH request
   Future<Map<String, dynamic>> patch(
     String endpoint,
@@ -170,6 +203,11 @@ class ApiService {
     // ✅ EXPECTED: resource not found
     if (response.statusCode == 404) {
       return null;
+    }
+
+    if (response.statusCode == 401) {
+      if (response.body.isEmpty) return null;
+      return json.decode(response.body);
     }
 
     // ❌ REAL errors

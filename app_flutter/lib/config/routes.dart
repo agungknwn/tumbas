@@ -3,7 +3,6 @@ import 'package:ngirit_app/screens/feature/expenses_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
 import '../screens/navigation_screen.dart';
-import '../widgets/common/generic/exit_wrapper.dart';
 
 class AppRoutes {
   static const String login = '/login';
@@ -20,13 +19,11 @@ class AppRoutes {
       case home:
         final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
-          builder: (_) => ExitWrapper(
-            child: NavigationScreen(
-              userId: args?['userId'],
-              onAddExpense: (title, amount, category) {
-                // print("Title:$title, Amount:$amount, Cat:$category");
-              },
-            ),
+          builder: (_) => NavigationScreen(
+            userId: args?['userId'],
+            onAddExpense: (title, amount, category) {
+              // print("Title:$title, Amount:$amount, Cat:$category");
+            },
           ),
         );
       case expenses:

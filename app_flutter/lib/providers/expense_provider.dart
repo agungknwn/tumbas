@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:ngirit_app/providers/common_provider.dart';
 import '../models/expenses.dart';
 import '../services/expense_service.dart';
 
 class ExpenseProvider extends ChangeNotifier {
+  CommonProvider commonProvider;
+  ExpenseProvider(this.commonProvider);
   // State management
   late String userId;
   void init(uid) {
@@ -63,6 +66,7 @@ class ExpenseProvider extends ChangeNotifier {
       ); // notify is loading false handle internally
       // debugPrint('Fetch Done');
     } catch (e) {
+      commonProvider.setServerReachable(false);
       debugPrint(e.toString());
       isLoading = false;
       notifyListeners();
@@ -93,6 +97,7 @@ class ExpenseProvider extends ChangeNotifier {
       final formattedDate = date.toIso8601String().split('T').first;
       await fetchExpenses(userId, formattedDate);
     } catch (e) {
+      commonProvider.setServerReachable(false);
       debugPrint(e.toString());
       //update done
       isLoading = false; // notify when fetchExpenses didnt run
@@ -107,7 +112,9 @@ class ExpenseProvider extends ChangeNotifier {
     try {
       expenses = await _service.getExpenseByDate(userId: userId, date: date);
     } catch (e) {
-      debugPrint(e.toString());
+      commonProvider.setServerReachable(false);
+      throw Exception(e.toString());
+      // debugPrint(e.toString());
     } finally {
       isLoading = false;
       notifyListeners();
@@ -124,6 +131,7 @@ class ExpenseProvider extends ChangeNotifier {
         expenseId: expenseId,
       );
     } catch (e) {
+      commonProvider.setServerReachable(false);
       debugPrint(e.toString());
     } finally {
       isLoading = false;
@@ -154,6 +162,7 @@ class ExpenseProvider extends ChangeNotifier {
 
       expenses.add(newExpense!); // optional optimistic update
     } catch (e) {
+      commonProvider.setServerReachable(false);
       debugPrint(e.toString());
     } finally {
       isLoading = false;

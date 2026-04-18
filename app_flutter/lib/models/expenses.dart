@@ -1,7 +1,7 @@
 // lib/models/budget.dart
 
 class ExpenseResponse {
-  final int amount;
+  final double amount;
   final String name;
   final String category;
   final String date;
@@ -21,7 +21,7 @@ class ExpenseResponse {
     return ExpenseResponse(
       name: json['name'] as String,
       monthYear: json['monthYear'] as String,
-      amount: json['amount'] as int,
+      amount: (json['amount'] as num).toDouble(),
       category: json['category'] as String,
       date: json['date'] as String,
       expenseId: json['expenseId'] as String,

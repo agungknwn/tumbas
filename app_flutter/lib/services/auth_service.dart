@@ -39,7 +39,7 @@ class AuthService {
   }
 
   // Login - calls POST /auth/login
-  Future<User> login({
+  Future<User?> login({
     required String identifier,
     required String password,
     bool staySignedIn = false,
@@ -57,7 +57,7 @@ class AuthService {
     //   "user": {...}
     // }
 
-    if (response['userId'] != null) {
+    if (response != null && response['userId'] != null) {
       // Save tokens if stay signed in
       if (staySignedIn) {
         await _storage.saveToken(response['access_token']);
@@ -66,7 +66,9 @@ class AuthService {
 
       return User.fromJson(response);
     } else {
-      throw Exception(response['error'] ?? 'Login failed');
+      // return response['error'] ?? 'Login Failed';
+      return null;
+      // throw Exception(response['error'] ?? 'Login failed');
     }
   }
 

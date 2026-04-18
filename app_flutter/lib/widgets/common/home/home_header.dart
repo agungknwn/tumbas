@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:ngirit_app/providers/budget_provider.dart';
 import 'package:ngirit_app/providers/common_provider.dart';
 import 'package:ngirit_app/widgets/common/generic/header_dropdown.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +23,7 @@ class _HomeHeaderState extends State<HomeHeader> {
   Widget build(BuildContext context) {
     final ColorScheme appTheme = Theme.of(context).colorScheme;
     final provider = context.watch<CommonProvider>();
+    final budget = context.watch<BudgetProvider>().userBudget;
     // provider.selectedCurrency = selectedCurrency;
 
     // debugPrint('selected currency: ${provider.selectedCurrency}');
@@ -96,6 +98,9 @@ class _HomeHeaderState extends State<HomeHeader> {
                   setState(() {
                     // selectedCurrency = val;
                     provider.selectedCurrency = val;
+                    if (budget != null) {
+                      provider.setExchangeRate(budget.currency, val);
+                    }
                     // Provider.of<CommonProvider>(
                     //   context,
                     //   listen: false,

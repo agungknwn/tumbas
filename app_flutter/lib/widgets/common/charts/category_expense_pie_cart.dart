@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:ngirit_app/providers/common_provider.dart';
 import 'package:ngirit_app/providers/summaries_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -19,6 +20,7 @@ class ExpenseCategoryPieChartState extends State<ExpenseCategoryPieChart> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<SummariesProvider>();
+    final exchangeRate = context.watch<CommonProvider>().exchangeRate;
     final categoryBreakdown = provider.monthlySummaries?.categories;
     if (categoryBreakdown == null) {
       return const CircularProgressIndicator();
@@ -33,7 +35,11 @@ class ExpenseCategoryPieChartState extends State<ExpenseCategoryPieChart> {
         children: <Widget>[
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
-            child: buildTopInfo(categoryBreakdown, widget.currency),
+            child: buildTopInfo(
+              categoryBreakdown,
+              widget.currency,
+              exchangeRate,
+            ),
           ),
           // buildTopInfo(),
           const SizedBox(height: 10),
@@ -108,7 +114,7 @@ class ExpenseCategoryPieChartState extends State<ExpenseCategoryPieChart> {
   // ];
   //
 
-  Widget buildTopInfo(data, String currency) {
+  Widget buildTopInfo(data, String currency, double rate) {
     if (touchedIndex == -1) {
       return const SizedBox(height: 40); // keep layout stable
       // return const SizedBox(height: 1); // keep layout stable
@@ -129,7 +135,7 @@ class ExpenseCategoryPieChartState extends State<ExpenseCategoryPieChart> {
           const SizedBox(width: 8),
           Text(
             // "${item["title"]}: ${formatCurrency(item["value"] as double, "Rp. ")}",
-            "${item["title"]}: ${currencyFormat.format(item["value"])}",
+            "${item["title"]}: ${currencyFormat.format(item["value"] * rate)}",
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
         ],

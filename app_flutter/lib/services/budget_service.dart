@@ -52,11 +52,19 @@ class BudgetService {
     required double amount,
     required String currency,
     required String monthYear,
+    required double exchangeRate,
+    required String fromCurrency,
+    required String toCurrency,
   }) async {
-    final response = await _api.put(
-      ApiConstants.userBudget(userId: userId, budgetId: budgetId),
-      {"amount": amount, "currency": currency, "monthYear": monthYear},
-    );
+    final response = await _api
+        .put(ApiConstants.userBudget(userId: userId, budgetId: budgetId), {
+          "amount": amount,
+          "currency": currency,
+          "monthYear": monthYear,
+          "exchangeRate": exchangeRate,
+          "fromCurrency": fromCurrency,
+          "toCurrency": toCurrency,
+        });
 
     if (response['message'] == "Budget Updated") {
       return response['data'];

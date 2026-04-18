@@ -15,13 +15,17 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<String> currencies = ['IDR', 'USD', 'EUR', 'SEK'];
+  // List<String> currencies = ['IDR', 'USD', 'EUR', 'SEK'];
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<SummariesProvider>().getMonthlySummaries();
+      // final userBudget = context.read<BudgetProvider>().userBudget;
+      // if (userBudget != null) {
+      //   context.read<CommonProvider>().selectedCurrency = userBudget.currency;
+      // }
       // context.read<BudgetProvider>().fetchBudget();
     });
   }
@@ -38,6 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
         summariesProvider.monthlySummaries?.totalExpenses ?? 0.0;
     final double totalBudget = budgetProvider.userBudget?.amount ?? 0.0;
     final double savingAmount = totalBudget - totalMonthlySpending;
+    final double exchangeRate = commonProvider.exchangeRate;
 
     return Padding(
       padding: const EdgeInsets.all(0),
@@ -45,11 +50,11 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           HomeHeader(
             currentMonthYear: summariesProvider.monthYear,
-            currencies: currencies,
+            currencies: commonProvider.currencyList,
           ),
           SavingCard(
-            amountSaved: savingAmount,
-            total: totalBudget,
+            amountSaved: savingAmount * exchangeRate,
+            total: totalBudget * exchangeRate,
             isLoading: budgetProvider.isLoading,
             currency: commonProvider.selectedCurrency,
           ),

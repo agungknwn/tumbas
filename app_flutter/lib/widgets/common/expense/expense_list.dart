@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:ngirit_app/providers/common_provider.dart';
+import 'package:provider/provider.dart';
 import '../../../models/expenses.dart';
 import '../../../widgets/common/expense/expense_card.dart';
 
@@ -20,6 +22,7 @@ class ExpenseList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var currencyFormat = NumberFormat.simpleCurrency(name: currency);
+    final exchangeRate = context.watch<CommonProvider>().exchangeRate;
     return Padding(
       padding: EdgeInsets.only(top: 200),
       child: ListView.separated(
@@ -33,7 +36,7 @@ class ExpenseList extends StatelessWidget {
             title: item.name,
             category: item.category,
             // price: 'Rp. ${item.amount.toStringAsFixed(0)}',
-            price: currencyFormat.format(item.amount),
+            price: currencyFormat.format(item.amount * exchangeRate),
             isToday: isToday,
             // (expenseId) => onEditButtonPressed(item.expenseId),
             // onEditButtonPressed: onEditButtonPressed,

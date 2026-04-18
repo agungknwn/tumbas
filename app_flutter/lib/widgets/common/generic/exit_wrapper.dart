@@ -23,9 +23,11 @@ class ExitWrapper extends StatelessWidget {
   }
 
   Future<bool> _showExitDialog(BuildContext context) async {
+    final appTheme = Theme.of(context).colorScheme;
     return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
+            backgroundColor: appTheme.secondary,
             title: const Text('Exit App'),
             content: const Text('Are you sure you want to exit?'),
             actions: [

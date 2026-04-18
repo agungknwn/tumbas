@@ -1,7 +1,11 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:ngirit_app/providers/budget_provider.dart';
+import 'package:ngirit_app/providers/common_provider.dart';
 import 'package:ngirit_app/providers/expense_provider.dart';
 import 'package:ngirit_app/providers/summaries_provider.dart';
+import 'package:ngirit_app/widgets/common/generic/ui_feedback.dart';
 import '../../services/biometric_service.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
@@ -36,6 +40,13 @@ class _LoginScreenState extends State<LoginScreen> {
     final provider = context.read<AuthProvider>();
     final available = await BiometricService.isAvailable();
     final hasCreds = await provider.hasSavedCredentials();
+    if (!hasCreds && mounted) {
+      UiFeedback.show(
+        context,
+        message: "Please login first to enable biometric auth",
+        type: FeedbackType.info,
+      );
+    }
     if (mounted) setState(() => _biometricAvailable = available && hasCreds);
   }
 
@@ -45,6 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     final provider = context.read<AuthProvider>();
+    // if (provider.userId == null) return;
     final savedIdentity = await provider.getSavedIdentity();
     final savedPassword = await provider.getSavedPassword();
 
@@ -67,12 +79,19 @@ class _LoginScreenState extends State<LoginScreen> {
       context.read<BudgetProvider>().init(authProvider.userId);
       context.read<ExpenseProvider>().init(authProvider.userId);
       context.read<SummariesProvider>().init(authProvider.userId);
+      context.read<CommonProvider>().exchangeRate = 1.0;
       Navigator.pushReplacementNamed(
         context,
         AppRoutes.home,
         arguments: {'userId': authProvider.userId},
       );
     });
+  }
+
+  void showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
   }
 
   @override
@@ -82,10 +101,10 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(
-          "Login",
+          "",
           style: TextStyle(fontSize: 28, color: appTheme.secondary),
         ),
-        backgroundColor: appTheme.primary,
+        backgroundColor: appTheme.secondary,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -143,14 +162,28 @@ class _LoginScreenState extends State<LoginScreen> {
                             backgroundColor: appTheme.tertiary,
                           ),
                           onPressed: () {
+                            // final commonProvider = context
+                            //     .read<CommonProvider>();
+                            // await commonProvider.checkHealth();
+                            //
+                            // if (!commonProvider.serverReachable) {
+                            //   return;
+                            // }
+                            // if (!context.mounted) return;
                             Navigator.pushReplacementNamed(
                               context,
                               AppRoutes.register,
                             );
                           },
-                          child: Text(
-                            "Registers",
-                            style: TextStyle(color: appTheme.primary),
+                          child: Row(
+                            children: [
+                              Icon(Icons.person_add),
+                              SizedBox(width: 5),
+                              Text(
+                                "Registers",
+                                style: TextStyle(color: appTheme.primary),
+                              ),
+                            ],
                           ),
                         ),
                         SizedBox(width: 10),
@@ -159,24 +192,47 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: appTheme.tertiary,
                           ),
-                          onPressed: () {
+                          onPressed: () async {
                             final identity = idController.text.trim();
                             final password = passwordController.text.trim();
 
                             if (identity.isEmpty || password.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Email and Password Required"),
-                                ),
+                              UiFeedback.show(
+                                context,
+                                message: "Email and Password Required",
+                                type: FeedbackType.info,
                               );
+                              // ScaffoldMessenger.of(context).showSnackBar(
+                              //   const SnackBar(
+                              //     content: Text("Email and Password Required"),
+                              //   ),
+                              // );
                               return;
                             }
 
-                            authProvider.login(identity, password);
+                            await authProvider.login(identity, password);
+                            if (!mounted) return;
+                            if (authProvider.userId == null) {
+                              if (!context.mounted) return;
+                              // showError("Invalid Cred");
+                              authProvider.clearCredentials();
+                              _biometricAvailable = false;
+                              UiFeedback.show(
+                                context,
+                                message: "Invalid Username/Password",
+                                type: FeedbackType.error,
+                              );
+                            }
                           },
-                          child: Text(
-                            "Login",
-                            style: TextStyle(color: appTheme.primary),
+                          child: Row(
+                            children: [
+                              Icon(Icons.login),
+                              SizedBox(width: 5),
+                              Text(
+                                "Login",
+                                style: TextStyle(color: appTheme.primary),
+                              ),
+                            ],
                           ),
                         ),
                       ],

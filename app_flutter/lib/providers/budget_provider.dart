@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:ngirit_app/providers/common_provider.dart';
+// import 'package:ngirit_app/services/common_service.dart';
 import '../models/budget.dart';
 import '../services/budget_service.dart';
 
 class BudgetProvider extends ChangeNotifier {
+  // multi provider
+  CommonProvider commonProvider;
+  BudgetProvider(this.commonProvider);
+
+  // init
   late String userId;
 
   DateTime selectedDate = DateTime.now();
@@ -21,6 +28,10 @@ class BudgetProvider extends ChangeNotifier {
   void init(uid) {
     userId = uid;
     _initMonthlyBudget();
+    final budget = userBudget;
+    if (budget != null) {
+      commonProvider.selectedCurrency = budget.currency;
+    }
   }
 
   // Call services
@@ -93,6 +104,7 @@ class BudgetProvider extends ChangeNotifier {
     try {
       userBudget = await _service.getBudget(userId: userId, budgetId: budgetId);
     } catch (e) {
+      commonProvider.setServerReachable(false);
       debugPrint(e.toString());
     } finally {
       isLoading = false;
@@ -100,27 +112,47 @@ class BudgetProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> updateBudget(double amount, String currency) async {
+  Future<void> updateBudget(
+    double amount,
+    String baseCurrency,
+    String targetCurrency,
+  ) async {
     isLoading = true;
 
     userBudget = Budget(
       monthYear: monthYear,
       amount: amount,
-      currency: currency,
+      currency: targetCurrency,
     );
 
     notifyListeners();
 
     try {
+      debugPrint("selected Currency: $targetCurrency");
+      // final exchangeRate = await CommonService().getFrankfurterExchangeRate(
+      //   baseCurrency: baseCurrency,
+      //   targetCurrency: targetCurrency,
+      // );
+      final exchangeRate = await commonProvider.getExchangeRate(
+        baseCurrency,
+        targetCurrency,
+      );
+      debugPrint("exchangeRate: $exchangeRate");
+      debugPrint("global Exchange Rate: $commonProvider.exchangeRate");
       await _service.updateBudget(
         userId: userId,
         budgetId: budgetId,
         amount: amount,
-        currency: currency,
+        currency: targetCurrency,
         monthYear: monthYear,
+        exchangeRate: exchangeRate,
+        fromCurrency: baseCurrency,
+        toCurrency: targetCurrency,
       );
+      commonProvider.selectedCurrency = targetCurrency;
     } catch (e) {
-      debugPrint(e.toString());
+      commonProvider.setServerReachable(false);
+      debugPrint("update Budget status: ${e.toString()}");
     } finally {
       isLoading = false;
       notifyListeners();

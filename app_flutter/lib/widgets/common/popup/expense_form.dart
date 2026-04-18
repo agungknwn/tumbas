@@ -186,203 +186,247 @@ class _ExpenseFormState extends State<ExpenseForm> {
       // debugPrint("init cat: $selectedCategory");
       _isInitialized = true;
     }
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Center(
-          child: Text(
-            "Add New Expense",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: Colors.black87,
+    return Container(
+      color: appTheme.secondary,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Text(
+              "Add New Expense",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+              ),
             ),
           ),
-        ),
-        SizedBox(height: 20),
+          SizedBox(height: 20),
 
-        TextField(
-          controller: titleController,
-          decoration: InputDecoration(
-            labelText: "Expense title",
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          TextField(
+            controller: titleController,
+            decoration: InputDecoration(
+              labelText: "Expense title",
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
           ),
-        ),
-        SizedBox(height: 12),
+          SizedBox(height: 12),
 
-        TextField(
-          controller: amountController,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            labelText: "Amount",
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          TextField(
+            controller: amountController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: "Amount",
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
           ),
-        ),
-        SizedBox(height: 16),
+          SizedBox(height: 16),
 
-        Text("Category", style: TextStyle(fontWeight: FontWeight.w600)),
-        SizedBox(height: 8),
+          Text("Category", style: TextStyle(fontWeight: FontWeight.w600)),
+          SizedBox(height: 8),
 
-        // scroll view categories
-        ClipRRect(
-          borderRadius: BorderRadius.circular(25), // row radius
-          child: IntrinsicHeight(
-            // forces all children to match tallest
-            child: SingleChildScrollView(
-              controller: _chipScrollController,
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                crossAxisAlignment:
-                    CrossAxisAlignment.stretch, // stretch to IntrinsicHeight
-                children: categories.map((cat) {
-                  _chipKeys[cat] ??= GlobalKey();
-                  final bool active = selectedCategory == cat;
-                  return Padding(
-                    key: _chipKeys[cat],
-                    padding: const EdgeInsets.only(right: 10),
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() => selectedCategory = cat);
-                        _scrollToChip(cat);
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: active
-                              ? appTheme.tertiary
-                              : Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(
-                            25,
-                          ), // chip radius
-                          border: Border.all(
+          // scroll view categories
+          ClipRRect(
+            borderRadius: BorderRadius.circular(25), // row radius
+            child: IntrinsicHeight(
+              // forces all children to match tallest
+              child: SingleChildScrollView(
+                controller: _chipScrollController,
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.stretch, // stretch to IntrinsicHeight
+                  children: categories.map((cat) {
+                    _chipKeys[cat] ??= GlobalKey();
+                    final bool active = selectedCategory == cat;
+                    return Padding(
+                      key: _chipKeys[cat],
+                      padding: const EdgeInsets.only(right: 10),
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() => selectedCategory = cat);
+                          _scrollToChip(cat);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
                             color: active
                                 ? appTheme.tertiary
-                                : appTheme.primary,
-                            width: 0.5,
+                                : Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(
+                              25,
+                            ), // chip radius
+                            border: Border.all(
+                              color: active
+                                  ? appTheme.tertiary
+                                  : appTheme.primary,
+                              width: 0.5,
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                getCategoryIcon(cat),
+                                size: 16,
+                                color: active ? appTheme.primary : Colors.black,
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                cat,
+                                style: TextStyle(
+                                  color: active
+                                      ? appTheme.primary
+                                      : Colors.black,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              getCategoryIcon(cat),
-                              size: 16,
-                              color: active ? appTheme.primary : Colors.black,
-                            ),
-                            const SizedBox(width: 5),
-                            Text(
-                              cat,
-                              style: TextStyle(
-                                color: active ? appTheme.primary : Colors.black,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
-                    ),
-                  );
-                }).toList(),
+                    );
+                  }).toList(),
+                ),
               ),
             ),
           ),
-        ),
 
-        // Wrap(
-        //   spacing: 10,
-        //   runSpacing: 12,
-        //   children: categories.map((cat) {
-        //     final bool active = selectedCategory == cat;
-        //     return ChoiceChip(
-        //       // label: Text(cat),
-        //       label: Row(
-        //         mainAxisSize: MainAxisSize.min,
-        //         children: [
-        //           Icon(Icons.circle, size: 16),
-        //           const SizedBox(width: 5),
-        //           Text(cat),
-        //         ],
-        //       ),
-        //       selected: active,
-        //       onSelected: (_) {
-        //         setState(() => selectedCategory = cat);
-        //       },
-        //       selectedColor: appTheme.tertiary,
-        //       backgroundColor: Colors.grey.shade200,
-        //       // labelPadding: EdgeInsetsGeometry.all(5),
-        //       labelStyle: TextStyle(
-        //         color: active ? appTheme.primary : Colors.black,
-        //         fontWeight: FontWeight.w500,
-        //       ),
-        //     );
-        //   }).toList(),
-        // ),
-        SizedBox(height: 24),
+          // Wrap(
+          //   spacing: 10,
+          //   runSpacing: 12,
+          //   children: categories.map((cat) {
+          //     final bool active = selectedCategory == cat;
+          //     return ChoiceChip(
+          //       // label: Text(cat),
+          //       label: Row(
+          //         mainAxisSize: MainAxisSize.min,
+          //         children: [
+          //           Icon(Icons.circle, size: 16),
+          //           const SizedBox(width: 5),
+          //           Text(cat),
+          //         ],
+          //       ),
+          //       selected: active,
+          //       onSelected: (_) {
+          //         setState(() => selectedCategory = cat);
+          //       },
+          //       selectedColor: appTheme.tertiary,
+          //       backgroundColor: Colors.grey.shade200,
+          //       // labelPadding: EdgeInsetsGeometry.all(5),
+          //       labelStyle: TextStyle(
+          //         color: active ? appTheme.primary : Colors.black,
+          //         fontWeight: FontWeight.w500,
+          //       ),
+          //     );
+          //   }).toList(),
+          // ),
+          SizedBox(height: 24),
 
-        Row(
-          children: [
-            if (widget.editMode)
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+          Row(
+            children: [
+              if (widget.editMode)
+                // OutlinedButton(
+                //   style: OutlinedButton.styleFrom(
+                //     padding: EdgeInsets.symmetric(vertical: 14),
+                //     shape: RoundedRectangleBorder(
+                //       borderRadius: BorderRadius.circular(12),
+                //     ),
+                //   ),
+                //   onPressed: () => _handleDelete(context),
+                //   child: Text(widget.deleteText),
+                // ),
+                OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: Colors.red, // red button
+                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    side: BorderSide.none, // remove outline border
+                  ),
+                  onPressed: () => _handleDelete(context),
+                  child: const Icon(
+                    Icons.delete_outlined,
+                    size: 28,
+                    color: Colors.white, // white icon
                   ),
                 ),
-                onPressed: () => _handleDelete(context),
-                child: Text(widget.deleteText),
-              ),
-            SizedBox(width: 12),
-            Expanded(
-              child: Consumer<ExpenseProvider>(
-                builder: (context, expenseProvider, child) {
-                  if (expenseProvider.isLoading) {
+              SizedBox(width: 12),
+              Expanded(
+                child: Consumer<ExpenseProvider>(
+                  builder: (context, expenseProvider, child) {
+                    if (expenseProvider.isLoading) {
+                      return ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: null,
+                        child: SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
                     return ElevatedButton(
                       style: ElevatedButton.styleFrom(
+                        backgroundColor: widget.editMode
+                            ? Colors.blue
+                            : Colors.green,
                         padding: EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: null,
-                      child: SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
+                      onPressed: () {
+                        if (widget.onSubmit != null) {
+                          _handleSubmit(context);
+                        } else if (widget.onAddExpense != null) {
+                          _handleAddExpense(context);
+                        }
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            widget.editMode
+                                ? Icons.edit_document
+                                : Icons.add_card,
+                            size: 20,
+                            color: appTheme.secondary,
                           ),
-                        ),
+                          SizedBox(width: 10),
+                          Text(
+                            widget.submitText,
+                            style: TextStyle(color: appTheme.secondary),
+                          ),
+                        ],
                       ),
                     );
-                  }
-                  return ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    onPressed: () {
-                      if (widget.onSubmit != null) {
-                        _handleSubmit(context);
-                      } else if (widget.onAddExpense != null) {
-                        _handleAddExpense(context);
-                      }
-                    },
-                    child: Text(widget.submitText),
-                  );
-                },
+                  },
+                ),
               ),
-            ),
-          ],
-        ),
-      ],
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

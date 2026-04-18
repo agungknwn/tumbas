@@ -65,6 +65,9 @@ flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/app_icon.png"
+  # For Android Adaptive Icons:
+  adaptive_icon_background: "#FFFFFF" # Forces the background to be white
+  adaptive_icon_foreground: "assets/app_adaptive_icon.png" # Use the same PNG
 flutter:
   assets:
     - .env

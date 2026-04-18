@@ -1,11 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:ngirit_app/models/user.dart';
+import 'package:ngirit_app/providers/common_provider.dart';
 import 'package:ngirit_app/services/auth_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthService _apiService = AuthService();
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  final CommonProvider commonProvider;
+
+  AuthProvider(this.commonProvider);
 
   static const _keyIdentifier = "saved_identifier";
   static const _keyPassword = "saved_password";
@@ -33,12 +37,17 @@ class AuthProvider extends ChangeNotifier {
       );
 
       _user = response;
-      debugPrint("_user: $response");
+      debugPrint("_user: $_user");
 
       // save cred on succesful login
-      await _saveCredentials(identifier, password);
+      if (_user != null) {
+        await _saveCredentials(identifier, password);
+      }
     } catch (e) {
+      // commonProvider.checkHealth();
+      commonProvider.setServerReachable(false);
       _error = e.toString();
+      debugPrint("login error: $_error");
       _user = null;
     } finally {
       _isLoading = false;
@@ -64,6 +73,7 @@ class AuthProvider extends ChangeNotifier {
         name: name,
       );
     } catch (e) {
+      commonProvider.setServerReachable(false);
       debugPrint(e.toString());
     } finally {
       registerStatus = true;
@@ -89,6 +99,12 @@ class AuthProvider extends ChangeNotifier {
     await _secureStorage.write(key: _keyIdentifier, value: identifier);
     await _secureStorage.write(key: _keyPassword, value: password);
     debugPrint("save cred done");
+  }
+
+  Future<void> clearCredentials() async {
+    await _secureStorage.delete(key: _keyIdentifier);
+    await _secureStorage.delete(key: _keyPassword);
+    debugPrint("biometric cred deleted");
   }
 
   Future<String?> getSavedIdentity() async {

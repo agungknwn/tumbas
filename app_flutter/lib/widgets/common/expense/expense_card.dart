@@ -99,14 +99,16 @@ class EditButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.read<ExpenseProvider>();
+    final appTheme = Theme.of(context).colorScheme;
     return Builder(
       builder: (context) => IconButton(
-        icon: Icon(Icons.edit, size: 20, color: Colors.green),
+        icon: Icon(Icons.edit, size: 20, color: Colors.blue),
         onPressed: () {
           showDialog(
             context: context,
             builder: (context) {
               return Dialog(
+                backgroundColor: appTheme.secondary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
